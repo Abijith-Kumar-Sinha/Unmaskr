@@ -27,6 +27,7 @@ export interface Signal {
 export interface Verdict {
   input: string
   host: string
+  registrable: string
   sld: string
   tld: string
   skeleton: string
@@ -80,12 +81,23 @@ export function parseHost(input: string) {
   return { host, labels, tld, sld, subdomains, lastLabel, registrable }
 }
 
-export function analyze(input: string, extraBrands: Brand[] = []): Verdict {
+export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<string>): Verdict {
   const allBrands = extraBrands.length ? [...BRANDS, ...extraBrands] : BRANDS
   const substrBrands = allBrands.filter((b) => b.core.length >= 4)
 
   const { host, tld, sld, subdomains, lastLabel, registrable } = parseHost(input)
   const sldSkel = skeleton(sld)
+
+  // User-reported false positive: the user vouched for this domain, so trust it
+  // outright (even over a homoglyph signal — it's their call, on their device).
+  if (allow?.has(registrable)) {
+    return {
+      input, host, registrable, sld, tld, skeleton: skeleton(host),
+      level: 'safe', score: 0, brand: null, similarity: 1,
+      distance: 0, trace: [], homoglyphs: [], ops: 0,
+      signals: [{ label: 'Marked safe by you', detail: `You reported ${registrable} as legitimate, so Unmaskr won't flag it.`, weight: 0 }],
+    }
+  }
 
   // Confusable-character analysis (UTS #39). `mixedScript`: the label mixes
   // Latin with another script (Latin 'p' + Cyrillic 'а' in 'pаypal') — always a
@@ -169,7 +181,7 @@ export function analyze(input: string, extraBrands: Brand[] = []): Verdict {
   // ── Legitimate official domain (and not disguised) → safe ──
   if (officialByDomain && !homoglyphUsed) {
     return {
-      input, host, sld, tld, skeleton: skeleton(host),
+      input, host, registrable, sld, tld, skeleton: skeleton(host),
       level: 'safe', score: 2, brand: officialByDomain, similarity: 1,
       distance: 0, trace: [], homoglyphs: [], ops,
       signals: [{ label: 'Official domain', detail: `Exact match for ${officialByDomain.name}'s real domain (${officialByDomain.domain}).`, weight: 0 }],
@@ -273,7 +285,7 @@ export function analyze(input: string, extraBrands: Brand[] = []): Verdict {
   }
 
   return {
-    input, host, sld, tld, skeleton: skeleton(host),
+    input, host, registrable, sld, tld, skeleton: skeleton(host),
     level, score, brand: impersonated,
     similarity: simShown, distance, trace,
     signals, homoglyphs, ops,

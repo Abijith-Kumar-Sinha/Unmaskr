@@ -2,29 +2,70 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Unmaskr demo inbox</title>
+<title>Unmaskr — Live Demo</title>
 <style>
-  body{font-family:system-ui,-apple-system,sans-serif;background:#0f1117;color:#e7e9f3;margin:0;padding:40px 20px;}
-  .wrap{max-width:620px;margin:0 auto;}
-  h1{font-size:22px;margin:0 0 4px;}
-  p.sub{color:#8b90a8;margin:0 0 24px;font-size:14px;}
-  .msg{background:#171a24;border:1px solid #242838;border-radius:12px;padding:16px 18px;margin-bottom:12px;}
-  .from{font-size:12px;color:#8b90a8;}
+  :root{--bg:#0e1018;--card:#161925;--bd:#242838;--tx:#e7e9f3;--mut:#868ca0;--cyan:#4cc2f0;--red:#f43f5e;--amber:#f59e0b;--green:#34d399;--indigo:#6d6af0;}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);margin:0;padding:40px 20px;}
+  .wrap{max-width:680px;margin:0 auto;}
+  h1{font-size:24px;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+  h1 span{color:var(--cyan);}
+  p.sub{color:var(--mut);margin:0 0 22px;font-size:14px;line-height:1.5;}
+  h2{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:26px 0 12px;}
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+  .leg{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.45;}
+  .leg b{display:block;margin-bottom:2px;}
+  .leg .r{color:var(--red);} .leg .a{color:var(--amber);} .leg .c{color:var(--cyan);} .leg .i{color:var(--indigo);}
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px;}
+  button.try{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--bd);border-radius:10px;
+    padding:10px 14px;cursor:pointer;background:var(--card);color:var(--tx);display:flex;flex-direction:column;gap:2px;align-items:flex-start;}
+  button.try:hover{border-color:#39405a;}
+  button.try small{font-weight:500;font-size:11px;}
+  button.dang{box-shadow:inset 3px 0 0 var(--red);}
+  button.warn{box-shadow:inset 3px 0 0 var(--amber);}
+  button.dang small{color:#f6a6b2;} button.warn small{color:#f3c98a;}
+  .msg{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .from{font-size:12px;color:var(--mut);}
   .subj{font-weight:700;margin:3px 0 8px;}
-  a{color:#6ea8fe;text-decoration:none;}
-  a:hover{text-decoration:underline;}
-  .tag{font-size:11px;color:#8b90a8;}
+  a{color:#6ea8fe;text-decoration:none;} a:hover{text-decoration:underline;}
+  .tag{font-size:11px;color:var(--mut);margin-top:4px;}
+  .hint{background:rgba(109,106,240,.12);border:1px solid rgba(109,106,240,.3);border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.5;margin-top:8px;}
+  .hint b{color:#c3c1ff;}
+  kbd{background:#0f111b;border:1px solid var(--bd);border-radius:5px;padding:1px 6px;font-family:ui-monospace,monospace;font-size:12px;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>📥 Demo Inbox</h1>
-  <p class="sub">Unmaskr scans the links below and flags the fakes inline — look for the red “⚠ fake” markers. (None of these links go anywhere; only the address is analysed.)</p>
+  <h1>🛡️ <span>Unmaskr</span> — Live Demo</h1>
+  <p class="sub">A walkthrough of all three protection layers. Nothing here navigates anywhere — only the
+  <i>addresses</i> are analysed, fully on-device. Pin the Unmaskr extension to watch the toolbar badge react too.</p>
+
+  <div class="legend">
+    <div class="leg"><b class="r">① Full-screen block</b>Dangerous lookalikes are stopped before you can type a password.</div>
+    <div class="leg"><b class="a">② Warning bar</b>Borderline/suspicious domains get a dismissible top banner.</div>
+    <div class="leg"><b class="c">③ Inline link flags</b>Risky links inside any page are tagged <i>before</i> you click.</div>
+    <div class="leg"><b class="i">④ Popup</b>Verdict, manual checker, and the Rules ⇄ ML explainable toggle.</div>
+  </div>
+
+  <h2>▶ Try the live protection</h2>
+  <p class="sub" style="margin-bottom:12px">Click any chip — the page reloads as that domain so you see the real intervention. Use “Back to safety” / “Dismiss” to return.</p>
+  <div class="btns">
+    <button class="try dang" onclick="show('hdfcbank-kyc.xyz')">HDFC combosquat<small>hdfcbank-kyc.xyz · blocks</small></button>
+    <button class="try dang" onclick="show('pаypal.com')">PayPal homoglyph<small>Cyrillic “а” · blocks</small></button>
+    <button class="try dang" onclick="show('sbi-rewards.online')">SBI brand + lure<small>sbi-rewards.online · blocks</small></button>
+    <button class="try dang" onclick="show('secure-paypal.tk')">Throwaway TLD<small>secure-paypal.tk · blocks</small></button>
+    <button class="try warn" onclick="show('paypa1.com')">PayPal typo<small>paypa1.com · warns</small></button>
+    <button class="try warn" onclick="show('rnicrosoft.com')">“rn”→“m” trick<small>rnicrosoft.com · warns</small></button>
+  </div>
+
+  <h2>③ Inline flagging — a phishing inbox</h2>
+  <p class="sub" style="margin-bottom:12px">Unmaskr scans every link and tags it: <span style="color:var(--red)">⚠ fake</span> (dangerous) or
+  <span style="color:var(--amber)">⚠ risky</span> (suspicious). Real links are left untouched.</p>
 
   <div class="msg">
     <div class="from">HDFC Bank Alerts &lt;noreply@hdfc-alerts.com&gt;</div>
     <div class="subj">⚠ Your KYC will expire today</div>
-    <div>Verify now to avoid account suspension:
+    <div>Verify now to avoid suspension:
       <a href="https://hdfcbank-kyc.xyz/verify">https://hdfcbank-kyc.xyz/verify</a></div>
   </div>
 
@@ -32,15 +73,25 @@
     <div class="from">PayPal Service</div>
     <div class="subj">Unusual sign-in detected</div>
     <div>Secure your account here:
-      <a href="https://secure-paypal.tk/login">secure-paypal.tk/login</a></div>
+      <a href="https://secure-paypal.tk/login">secure-paypal.tk/login</a>,
+      or confirm at <a href="https://paypa1.com/verify">paypa1.com</a> <span class="tag">(typo — “risky”)</span></div>
   </div>
 
   <div class="msg">
     <div class="from">SBI Rewards</div>
     <div class="subj">You have ₹2,000 reward points</div>
     <div>Claim before midnight:
-      <a href="https://sbi-rewards.online/claim">sbi-rewards.online/claim</a>
-      and also <a href="https://phonepе.com">phonepе.com</a> (Cyrillic!)</div>
+      <a href="https://sbi-rewards.online/claim">sbi-rewards.online/claim</a>,
+      and pay via <a href="https://phonepе.com">phonepе.com</a> <span class="tag">(Cyrillic “е” — invisible disguise)</span></div>
+  </div>
+
+  <div class="msg">
+    <div class="from">Shopping deals</div>
+    <div class="subj">Mixed bag — some real, some not</div>
+    <div>
+      <a href="https://amaz0n.in/deal">amaz0n.in</a> <span class="tag">(zero-for-o — “risky”)</span> ·
+      <a href="https://rnicrosoft.com/login">rnicrosoft.com</a> <span class="tag">(“rn”→“m” — “risky”)</span> ·
+      <a href="https://icicibank-verify.com">icicibank-verify.com</a></div>
   </div>
 
   <div class="msg">
@@ -49,10 +100,26 @@
     <div>
       <a href="https://www.amazon.in">amazon.in</a> ·
       <a href="https://www.google.com">google.com</a> ·
-      <a href="https://github.com">github.com</a>
-      <div class="tag">— these should stay unmarked (Unmaskr leaves safe links alone)</div>
+      <a href="https://github.com">github.com</a> ·
+      <a href="https://www.sbi.co.in">sbi.co.in</a>
+      <div class="tag">— these stay unmarked (Unmaskr leaves safe links alone — note the 0% false alarms)</div>
     </div>
   </div>
+
+  <h2>④ Open the popup</h2>
+  <div class="hint">
+    Click the Unmaskr toolbar icon to show the rest: the <b>current-tab verdict</b>, a <b>manual domain checker</b>
+    (try typing <kbd>pаypal.com</kbd> with a Cyrillic “а”), the <b>stats dashboard</b>, and the
+    <b>Rules ⇄ ML toggle</b> — switch to <b>ML</b> to see the explainable per-signal contribution bars that justify each score.
+  </div>
 </div>
+
+<script>
+  // Force a fresh navigation (cache-busting query) so the content script re-runs
+  // and reads the #unmaskr-test hook for the chosen host.
+  function show(host){
+    location.href = 'demo.html?t=' + Date.now() + '#unmaskr-test=' + encodeURIComponent(host);
+  }
+</script>
 </body>
 </html>

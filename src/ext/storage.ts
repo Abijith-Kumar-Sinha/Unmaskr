@@ -127,6 +127,43 @@ export async function recordBlock(t: Threat): Promise<void> {
   await pushThreat(t)
 }
 
+// ── User allowlist: sites you reported as legitimate (false positives) ─────
+// A reported site is never flagged again on THIS device, and the list doubles
+// as your field false-positive dataset — export it to widen brands.ts and to
+// add hard negatives when retraining. Device-only, like everything else.
+const ALLOW_KEY = 'pg_allow'
+const MAX_ALLOW = 500
+
+export async function getAllow(): Promise<string[]> {
+  try {
+    const r = await chrome.storage.local.get(ALLOW_KEY)
+    return (r[ALLOW_KEY] as string[] | undefined) ?? []
+  } catch {
+    return []
+  }
+}
+
+export async function addAllow(registrable: string): Promise<void> {
+  if (!registrable) return
+  const list = await getAllow()
+  if (list.includes(registrable)) return
+  list.unshift(registrable)
+  try {
+    await chrome.storage.local.set({ [ALLOW_KEY]: list.slice(0, MAX_ALLOW) })
+  } catch {
+    /* ignore */
+  }
+}
+
+export async function removeAllow(registrable: string): Promise<void> {
+  const list = (await getAllow()).filter((d) => d !== registrable)
+  try {
+    await chrome.storage.local.set({ [ALLOW_KEY]: list })
+  } catch {
+    /* ignore */
+  }
+}
+
 // ── Master on/off switch ─────────────────────────────────────────────────
 // Lets the user pause all protection. On by default. Persisted in
 // chrome.storage.local so background + content scripts and the popup agree.

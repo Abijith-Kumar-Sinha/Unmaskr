@@ -1,5 +1,6 @@
 /// <reference types="chrome" />
 import { analyze, type Verdict } from '../algorithms/scoring'
+import { getAllow } from './storage'
 import type { Brand } from '../data/brands'
 
 // Build-time flag, replaced by esbuild `define`. `true` in dev/demo builds,
@@ -13,6 +14,7 @@ declare const __PG_DEMO__: boolean
 //  3. Any dangerous/suspicious LINK on the page    -> flagged inline before you click.
 
 let TRUSTED: Brand[] = []
+let ALLOW = new Set<string>()
 const cache = new Map<string, Verdict>()
 // Re-inject guard state for the block screen (see blockScreen).
 let blockGuard: MutationObserver | null = null
@@ -36,7 +38,7 @@ async function loadTrusted(): Promise<Brand[]> {
 function check(host: string): Verdict {
   let v = cache.get(host)
   if (!v) {
-    v = analyze(host, TRUSTED)
+    v = analyze(host, TRUSTED, ALLOW)
     cache.set(host, v)
   }
   return v
@@ -74,29 +76,35 @@ function blockScreen(v: Verdict) {
   const sh = host.attachShadow({ mode: 'closed' })
   sh.innerHTML = `
   <style>
-    .wrap{position:fixed;inset:0;z-index:2147483647;background:radial-gradient(1200px 600px at 50% 0,#5b0f1a,#1a0509 70%);
-      color:#fff;font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;justify-content:center;}
-    .card{max-width:560px;width:90%;text-align:center;padding:8px;}
-    .shield{font-size:64px;line-height:1;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
-    h1{font-size:30px;margin:18px 0 6px;font-weight:800;letter-spacing:-.5px;}
-    .sub{font-size:15px;color:#ffd7dd;line-height:1.5;}
-    .sub b{color:#fff;}
-    .host{margin:18px auto;font-family:'JetBrains Mono',monospace;font-size:18px;background:rgba(0,0,0,.35);
-      border:1px solid #f43f5e;border-radius:10px;padding:10px 14px;word-break:break-all;display:inline-block;}
-    .pg-bad{background:rgba(244,63,94,.4);outline:1px solid #fff;border-radius:3px;padding:0 1px;}
-    .pg-note{font-size:13px;color:#ffc7cf;margin-top:8px;}
-    .risk{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:#ffd7dd;margin-top:4px;}
-    .dot{width:9px;height:9px;border-radius:50%;background:#f43f5e;box-shadow:0 0 10px #f43f5e;}
+    .wrap{position:fixed;inset:0;z-index:2147483647;
+      background:radial-gradient(900px 520px at 50% -8%, rgba(255,77,109,.20), transparent 62%), #05060a;
+      color:#eef0f6;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      display:flex;align-items:center;justify-content:center;}
+    .card{max-width:520px;width:90%;text-align:center;padding:8px;}
+    .badge{width:66px;height:66px;margin:0 auto;border-radius:18px;display:grid;place-items:center;
+      background:#ff4d6d;color:#fff;box-shadow:0 10px 34px rgba(255,77,109,.4);}
+    .badge svg{width:34px;height:34px;}
+    h1{font-size:28px;margin:20px 0 8px;font-weight:800;letter-spacing:-.02em;}
+    .sub{font-size:14.5px;color:#b9bfd0;line-height:1.55;max-width:440px;margin:0 auto;}
+    .sub b{color:#eef0f6;}
+    .host{margin:18px auto 0;font-family:ui-monospace,"SF Mono","Cascadia Code",Menlo,monospace;font-size:17px;
+      background:#0c0d11;border:1px solid rgba(255,77,109,.6);border-radius:11px;padding:11px 15px;
+      word-break:break-all;display:inline-block;}
+    .pg-bad{color:#ff4d6d;background:rgba(255,77,109,.22);outline:1px solid rgba(255,77,109,.7);border-radius:3px;padding:0 2px;}
+    .pg-note{font-size:12.5px;color:#9aa0b2;margin-top:10px;}
+    .pg-note b{color:#4c8dff;font-family:ui-monospace,"SF Mono",Menlo,monospace;}
+    .risk{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#b9bfd0;margin-top:12px;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#ff4d6d;box-shadow:0 0 10px #ff4d6d;}
     .btns{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap;}
-    button{font:inherit;font-size:15px;font-weight:700;border:0;border-radius:10px;padding:12px 22px;cursor:pointer;}
-    .safe{background:#fff;color:#b91c3c;}
-    .safe:hover{filter:brightness(.95);}
-    .go{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);}
-    .go:hover{background:rgba(255,255,255,.24);}
-    .by{margin-top:22px;font-size:11px;color:#e79aa6;opacity:.8;}
+    button{font:inherit;font-size:14.5px;font-weight:700;border:0;border-radius:11px;padding:12px 22px;cursor:pointer;}
+    .safe{background:#4c8dff;color:#fff;}
+    .safe:hover{filter:brightness(1.08);}
+    .go{background:transparent;color:#b9bfd0;border:1px solid #2a2f3d;}
+    .go:hover{background:rgba(255,255,255,.06);color:#eef0f6;}
+    .by{margin-top:22px;font-size:11px;color:#5c6178;letter-spacing:.03em;}
   </style>
   <div class="wrap"><div class="card">
-    <div class="shield">&#128737;&#65039;</div>
+    <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V5l-8-3z"/><path d="M12 8.5v4.5M12 16.5h.01"/></svg></div>
     <h1>Phishing site blocked</h1>
     <div class="sub">This page is pretending to be <b>${brand}</b>. Entering your password, OTP or payment details here could hand them to attackers.</div>
     <div class="host">${glyphHtml(v.host)}</div>
@@ -143,13 +151,19 @@ function topBar(v: Verdict) {
   const sh = el.attachShadow({ mode: 'closed' })
   sh.innerHTML = `
   <style>
-    .bar{position:fixed;top:0;left:0;right:0;z-index:2147483646;background:linear-gradient(90deg,#7c5510,#b07d18);
-      color:#fff;font-family:system-ui,sans-serif;display:flex;gap:12px;align-items:center;padding:10px 16px;
-      box-shadow:0 3px 14px rgba(0,0,0,.35);font-size:13.5px;}
-    b{color:#fff5dd;} button{margin-left:auto;font:inherit;font-size:12px;background:rgba(255,255,255,.18);
-      color:#fff;border:0;border-radius:7px;padding:6px 12px;cursor:pointer;}
+    .bar{position:fixed;top:0;left:0;right:0;z-index:2147483646;background:#1b1608;
+      color:#f6d99a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      display:flex;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid #4a3a12;
+      box-shadow:0 3px 14px rgba(0,0,0,.4);font-size:13.5px;}
+    .ic{color:#f0b429;flex:none;display:flex;}
+    .ic svg{width:16px;height:16px;}
+    b{color:#ffe9b8;}
+    button{margin-left:auto;font:inherit;font-size:12px;background:rgba(240,180,41,.14);
+      color:#f6d99a;border:1px solid #4a3a12;border-radius:7px;padding:6px 12px;cursor:pointer;}
+    button:hover{background:rgba(240,180,41,.24);}
   </style>
-  <div class="bar">&#9888;&#65039;&nbsp; <span>Unmaskr: this domain looks suspicious &mdash; possibly imitating <b>${brand}</b>. Be careful.</span>
+  <div class="bar"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
+  <span>Unmaskr: this domain looks suspicious &mdash; possibly imitating <b>${brand}</b>. Be careful.</span>
   <button id="x">Dismiss</button></div>`
   document.documentElement.appendChild(el)
   sh.getElementById('x')?.addEventListener('click', () => el.remove())
@@ -161,11 +175,11 @@ function ensureLinkStyle() {
   const st = document.createElement('style')
   st.id = 'pg-link-style'
   st.textContent = `
-    a[data-pg="danger"]{outline:2px solid #f43f5e !important;outline-offset:1px;border-radius:3px;}
-    a[data-pg="warn"]{outline:2px dashed #f59e0b !important;outline-offset:1px;border-radius:3px;}
-    .pg-flag{display:inline-block;font-family:system-ui,sans-serif;font-size:10px;font-weight:700;
+    a[data-pg="danger"]{outline:2px solid #ff4d6d !important;outline-offset:1px;border-radius:3px;}
+    a[data-pg="warn"]{outline:2px dashed #f0b429 !important;outline-offset:1px;border-radius:3px;}
+    .pg-flag{display:inline-block;font-family:system-ui,-apple-system,sans-serif;font-size:10px;font-weight:700;
       vertical-align:super;margin-left:3px;padding:1px 5px;border-radius:6px;cursor:help;}
-    .pg-flag.d{background:#f43f5e;color:#fff;} .pg-flag.w{background:#f59e0b;color:#1a1206;}
+    .pg-flag.d{background:#ff4d6d;color:#fff;} .pg-flag.w{background:#f0b429;color:#1a1206;}
   `
   document.documentElement.appendChild(st)
 }
@@ -231,6 +245,8 @@ async function run() {
   if (window.top !== window.self) return
   if (!(await isEnabled())) return // master switch: paused
   TRUSTED = await loadTrusted()
+  ALLOW = new Set(await getAllow())
+  cache.clear() // trusted/allow may have changed since the last run
 
   // Demo hook (#unmaskr-test=<host>) — compiled in for dev/demo builds only.
   // The store build (`build:ext:store`) sets __PG_DEMO__ = false, so esbuild
@@ -271,9 +287,17 @@ async function run() {
 
 // React to the master switch flipping without needing a page reload.
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || !changes['pg_enabled']) return
-  if (changes['pg_enabled'].newValue === false) teardown()
-  else run()
+  if (area !== 'local') return
+  if (changes['pg_enabled']) {
+    if (changes['pg_enabled'].newValue === false) return teardown()
+    return void run()
+  }
+  // A site was just reported as safe (or un-reported) from the popup — clear any
+  // block/bar we showed for the now-trusted domain and re-evaluate the page.
+  if (changes['pg_allow']) {
+    teardown()
+    run()
+  }
 })
 
 run()

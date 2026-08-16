@@ -14,9 +14,9 @@ const EXAMPLES = [
 ]
 
 const LEVEL_META: Record<Level, { label: string; color: string; bg: string; icon: string }> = {
-  safe: { label: 'Looks Safe', color: 'var(--color-safe)', bg: 'rgba(52,211,153,0.12)', icon: '✓' },
-  suspicious: { label: 'Suspicious', color: 'var(--color-warn)', bg: 'rgba(245,158,11,0.12)', icon: '!' },
-  dangerous: { label: 'Likely Phishing', color: 'var(--color-danger)', bg: 'rgba(244,63,94,0.12)', icon: '⚠' },
+  safe: { label: 'Looks Safe', color: 'var(--color-safe)', bg: 'rgba(76,141,255,0.12)', icon: '✓' },
+  suspicious: { label: 'Suspicious', color: 'var(--color-warn)', bg: 'rgba(240,180,41,0.12)', icon: '!' },
+  dangerous: { label: 'Likely Phishing', color: 'var(--color-danger)', bg: 'rgba(255,77,109,0.12)', icon: '⚠' },
 }
 
 export default function App() {
@@ -39,12 +39,15 @@ export default function App() {
       <header className="border-b border-[#1c2030] bg-panel/60 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-3">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-2)] text-lg">
-              🛡️
+            <div className="grid h-9 w-9 place-items-center rounded-lg border border-[#20232f] bg-panel-2 text-[var(--color-accent)]">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="10.5" cy="10.5" r="6.5" />
+                <path d="M15.5 15.5 L21 21" />
+              </svg>
             </div>
             <div>
-              <div className="text-base font-bold leading-none">
-                Un<span className="text-[var(--color-accent-2)]">maskr</span>
+              <div className="text-base font-bold leading-none tracking-tight">
+                Unmask<span className="text-[var(--color-accent)]">r</span>
               </div>
               <div className="text-[11px] text-muted">
                 Real-time lookalike-domain detection
@@ -232,7 +235,7 @@ function HostGlyphs({ v }: { v: Verdict }) {
             className={bad ? 'rounded px-0.5' : ''}
             style={
               bad
-                ? { background: 'rgba(244,63,94,0.25)', color: 'var(--color-danger)', outline: '1px solid var(--color-danger)' }
+                ? { background: 'rgba(255,77,109,0.22)', color: 'var(--color-danger)', outline: '1px solid var(--color-danger)' }
                 : undefined
             }
             title={bad ? `look-alike character (U+${ch.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0')})` : undefined}
@@ -332,7 +335,7 @@ function HowItWorks() {
   const steps = [
     ['1 · Skeleton normalization', 'Map every look-alike character to its standard form (Cyrillic “а” → “a”), so disguises collapse.'],
     ['2 · Weighted edit distance', 'Measure closeness to each brand with dynamic programming — visual/keyboard swaps cost less.'],
-    ['3 · Aho-Corasick matching', 'Scan for any brand hidden inside the name, against all brands in a single pass.'],
+    ['3 · Horspool matching', 'Scan for a brand hidden inside the name, using bad-character shifts to skip ahead fast.'],
     ['4 · Risk verdict', 'Combine the signals into an explainable score — brand, trick, and risk.'],
   ]
   return (

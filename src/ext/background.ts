@@ -3,9 +3,9 @@ import { analyze, type Level } from '../algorithms/scoring'
 import { getTrustedBrands, recordVisit, bumpScanned, recordBlock, getEnabled, ENABLED_KEY } from './storage'
 
 const BADGE: Record<Level, { text: string; color: string }> = {
-  safe: { text: '', color: '#34d399' },
-  suspicious: { text: '!', color: '#f59e0b' },
-  dangerous: { text: '✕', color: '#f43f5e' },
+  safe: { text: '', color: '#4c8dff' },
+  suspicious: { text: '!', color: '#f0b429' },
+  dangerous: { text: '✕', color: '#ff4d6d' },
 }
 
 // Tabs currently showing a block overlay. While a tab is in here, a routine

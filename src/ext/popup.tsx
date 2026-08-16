@@ -5,13 +5,23 @@ import { analyze, type Verdict, type Level } from '../algorithms/scoring'
 import { predictML, type MLVerdict } from '../algorithms/mlScore'
 import type { EditOp } from '../algorithms/editDistance'
 import type { Brand } from '../data/brands'
-import { getTrustedBrands, trustedCount, getStats, getRecent, getEnabled, setEnabled, getScoreMode, setScoreMode, type ScoreMode, type Threat } from './storage'
+import { getTrustedBrands, trustedCount, getStats, getRecent, getEnabled, setEnabled, getScoreMode, setScoreMode, getAllow, addAllow, removeAllow, type ScoreMode, type Threat } from './storage'
 import './popup.css'
 
 const META: Record<Level, { label: string; color: string; icon: string }> = {
-  safe: { label: 'Looks Safe', color: '#34d399', icon: '✓' },
-  suspicious: { label: 'Suspicious', color: '#f59e0b', icon: '!' },
-  dangerous: { label: 'Likely Phishing', color: '#f43f5e', icon: '⚠' },
+  safe: { label: 'Looks Safe', color: '#4c8dff', icon: '✓' },
+  suspicious: { label: 'Suspicious', color: '#f0b429', icon: '!' },
+  dangerous: { label: 'Likely Phishing', color: '#ff4d6d', icon: '⚠' },
+}
+
+/* monoline inspection mark — replaces the emoji logo */
+function Logo() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.5 15.5 L21 21" />
+    </svg>
+  )
 }
 
 function Popup() {
@@ -24,11 +34,13 @@ function Popup() {
   const [override, setOverride] = useState<string | null>(null)
   const [enabled, setEnabledState] = useState(true)
   const [mode, setMode] = useState<ScoreMode>('rules')
+  const [allow, setAllow] = useState<string[]>([])
 
   useEffect(() => {
     ;(async () => {
       setEnabledState(await getEnabled())
       setMode(await getScoreMode())
+      setAllow(await getAllow())
       setTrusted(await getTrustedBrands())
       setLearned(await trustedCount())
       setStats(await getStats())
@@ -46,10 +58,20 @@ function Popup() {
   }, [])
 
   const target = override ?? tabHost
+  const allowSet = useMemo(() => new Set(allow), [allow])
   const verdict = useMemo<Verdict | null>(
-    () => (target ? analyze(target, trusted) : null),
-    [target, trusted],
+    () => (target ? analyze(target, trusted, allowSet) : null),
+    [target, trusted, allowSet],
   )
+
+  const reportSafe = async (registrable: string) => {
+    await addAllow(registrable)
+    setAllow(await getAllow())
+  }
+  const undoSafe = async (registrable: string) => {
+    await removeAllow(registrable)
+    setAllow(await getAllow())
+  }
   const mlVerdict = useMemo<MLVerdict | null>(
     () => (target && mode === 'ml' ? predictML(target) : null),
     [target, mode],
@@ -68,9 +90,9 @@ function Popup() {
   return (
     <div>
       <div className="hd">
-        <div className="mark">🛡️</div>
+        <div className="mark"><Logo /></div>
         <div>
-          <div className="name">Un<span>maskr</span></div>
+          <div className="name">Unmask<span>r</span></div>
           <div className="sub">Lookalike-domain detector</div>
         </div>
         <button
@@ -91,9 +113,9 @@ function Popup() {
 
       {/* Stats dashboard */}
       <div className="stats">
-        <Stat n={stats.blocked} l="Threats blocked" c="#f43f5e" />
-        <Stat n={stats.scanned} l="Sites scanned" c="#22d3ee" />
-        <Stat n={learned} l="Sites learned" c="#34d399" />
+        <Stat n={stats.blocked} l="Threats blocked" c="var(--danger)" />
+        <Stat n={stats.scanned} l="Sites scanned" c="var(--ink)" />
+        <Stat n={learned} l="Sites learned" c="var(--accent)" />
       </div>
 
       <div className="section">
@@ -111,7 +133,12 @@ function Popup() {
         ) : mode === 'ml' && mlVerdict ? (
           <MLVerdictBlock v={mlVerdict} />
         ) : verdict ? (
-          <VerdictBlock v={verdict} />
+          <VerdictBlock
+            v={verdict}
+            allowed={allowSet.has(verdict.registrable)}
+            onReport={() => reportSafe(verdict.registrable)}
+            onUndo={() => undoSafe(verdict.registrable)}
+          />
         ) : null}
       </div>
 
@@ -154,8 +181,16 @@ function Popup() {
         </>
       )}
 
-      <div className="foot">
-        <span>Processed on-device · nothing uploaded</span>
+      <div className="disc">
+        <span className="ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+          </svg>
+        </span>
+        <p>
+          <b>Unmaskr can make mistakes.</b> Treat a verdict as a heads-up, not proof — always check
+          the address bar before entering passwords or payments.
+        </p>
       </div>
     </div>
   )
@@ -217,21 +252,21 @@ function MLVerdictBlock({ v }: { v: MLVerdict }) {
             <div key={i} className="contrib">
               <span className="cname">{FRIENDLY[c.feature] ?? c.feature}</span>
               <span className="cbar">
-                <span className="cfill" style={{ width: `${(Math.abs(c.contribution) / maxAbs) * 100}%`, background: pos ? '#f43f5e' : '#34d399' }} />
+                <span className="cfill" style={{ width: `${(Math.abs(c.contribution) / maxAbs) * 100}%`, background: pos ? '#ff4d6d' : '#4c8dff' }} />
               </span>
-              <span className="cval" style={{ color: pos ? '#f43f5e' : '#34d399' }}>{pos ? '+' : ''}{c.contribution.toFixed(2)}</span>
+              <span className="cval" style={{ color: pos ? '#ff4d6d' : '#4c8dff' }}>{pos ? '+' : ''}{c.contribution.toFixed(2)}</span>
             </div>
           )
         })}
       </div>
       <div className="muted" style={{ fontSize: 10.5, marginTop: 8 }}>
-        Logistic-regression hybrid · red pushes toward phishing, green toward safe
+        Logistic-regression hybrid · red pushes toward phishing, blue toward safe
       </div>
     </div>
   )
 }
 
-function VerdictBlock({ v }: { v: Verdict }) {
+function VerdictBlock({ v, allowed, onReport, onUndo }: { v: Verdict; allowed: boolean; onReport: () => void; onUndo: () => void }) {
   const m = META[v.level]
   return (
     <div>
@@ -252,12 +287,16 @@ function VerdictBlock({ v }: { v: Verdict }) {
       )}
 
       {v.homoglyphs.length > 0 && (
-        <div className="glyphs mono">
-          {[...v.host].map((ch, i) => (
-            <span key={i} className={ch.charCodeAt(0) > 127 ? 'bad' : ''}>{ch}</span>
-          ))}
-          <div className="muted" style={{ fontSize: 11, marginTop: 6 }}>
-            real form: <span style={{ color: '#22d3ee' }}>{v.skeleton}</span>
+        <div className="reveal">
+          <div className="disguise mono">
+            {[...v.host].map((ch, i) => (
+              <span key={i} className={ch.charCodeAt(0) > 127 ? 'bad' : ''}>{ch}</span>
+            ))}
+          </div>
+          <div className="truth">
+            <span>real form</span>
+            <span aria-hidden="true">→</span>
+            <span className="real mono">{v.skeleton}</span>
           </div>
         </div>
       )}
@@ -274,15 +313,26 @@ function VerdictBlock({ v }: { v: Verdict }) {
           </li>
         ))}
       </ul>
+
+      {allowed ? (
+        <div className="fpnote">
+          <span>You marked this site as safe.</span>
+          <button className="link" onClick={onUndo}>Undo</button>
+        </div>
+      ) : v.level !== 'safe' ? (
+        <button className="report" onClick={onReport}>
+          Not a phishing site? Report it as safe
+        </button>
+      ) : null}
     </div>
   )
 }
 
 function Alignment({ trace, brand }: { trace: EditOp[]; brand: string }) {
   const col = (op: EditOp) => {
-    if (op.type === 'match') return '#34d399'
-    if (op.type === 'sub') return op.kind === 'visual' ? '#f59e0b' : op.kind === 'keyboard' ? '#fb923c' : '#f43f5e'
-    return '#8b90a8'
+    if (op.type === 'match') return '#4c8dff'
+    if (op.type === 'sub') return op.kind === 'visual' ? '#f0b429' : op.kind === 'keyboard' ? '#fb923c' : '#ff4d6d'
+    return '#8b91a3'
   }
   return (
     <div className="align">

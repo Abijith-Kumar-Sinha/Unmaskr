@@ -29,3 +29,10 @@ for (const c of cases) {
     v.homoglyphs.length ? `homoglyphs:${v.homoglyphs.length}` : '',
   )
 }
+
+// User allowlist (reported false positives) forces a domain to 'safe'.
+const fp = 'secure-paypal.xyz'
+if (analyze(fp).level === 'safe') throw new Error('setup: ' + fp + ' should flag without allowlist')
+const allowed = analyze(fp, [], new Set([fp]))
+if (allowed.level !== 'safe' || allowed.score !== 0) throw new Error('allowlist gate failed for ' + fp)
+console.log('\nallowlist: ' + fp + ' -> ' + allowed.level + ' when reported  OK')
