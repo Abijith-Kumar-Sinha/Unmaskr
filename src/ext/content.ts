@@ -288,11 +288,12 @@ function pageChecks() {
     return blockScreen(v, true)
   }
 
-  // Everything below is for pages whose domain itself looked fine. Skip sites
-  // the user trusts: an official brand site, a learned site, an allowlisted one.
+  // Everything below is for pages whose domain itself looked fine. Skip only an
+  // official brand site or one the user explicitly reported as safe — NOT a
+  // "learned" site: visits are counted per page load, so a phishing page that
+  // reloads itself would get learned and switch these checks off (trust poisoning).
   const { registrable } = parseHost(host)
-  const trusted = officialBrandOf(host) || TRUSTED.some((b) => b.domain === registrable) || ALLOW.has(registrable)
-  if (trusted) return
+  if (officialBrandOf(host) || ALLOW.has(registrable)) return
 
   const warn = (html: string) => {
     pageWarned = true

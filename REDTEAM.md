@@ -42,7 +42,7 @@ modify the extension or its storage.
    VAPT course folder) supplied the page-level attack list.
 3. **Exploit:** proof-of-concept attack pages (`scripts/redteam/pages/`) for
    attacks the domain can't reveal.
-4. **Report:** findings RT-01 … RT-16 below, rated by impact.
+4. **Report:** findings RT-01 … RT-19 below, rated by impact.
 5. **Fix → retest:** each fix is checked by re-running the fuzzer, the 50k
    Tranco false-positive sweep, the lab pages, and a regression test per finding
    (`scripts/test.ts`).
@@ -74,6 +74,12 @@ user's trust settings can be abused. *Low:* false alarms or inconsistent signals
 | RT-06 | Missing high-target Indian brands: Income Tax, UIDAI/Aadhaar, DigiLocker, Parivahan e-challan, NPCI, LIC, more banks, Airtel | Medium | not protected | 15 brands added |
 | RT-07 | Legitimate foreign-language domains (`københavn.dk`, `straße.de`, `łódź.pl`) were falsely flagged as homoglyph attacks | Low | 33.3 % FP | 0 % |
 | RT-10 | The toolbar badge ignored the user's safe list — a red ✕ on a page the user had marked safe | Low | inconsistent | consistent |
+| RT-17 | **Parser differential:** `https://evil.xyz\@hdfcbank.com` was read as "official HDFC", but browsers treat `\` as `/` and go to evil.xyz (manual checker) | Medium | official HDFC | evil.xyz (browser-exact) |
+| RT-18 | A brand name on **any** 2-letter country domain (`paypal.ws`, `amazon.cc`) was labelled "Official" and switched off the page checks and link-text checks | Medium | trusted | page checks run; no "Official" label |
+| RT-19 | **Trust poisoning, page level:** learned sites skipped the page checks, and visits count per page load, so a fake login that reloads itself twice switched them off | Medium | possible | only official or user-allowlisted sites skip |
+
+RT-17 to RT-19 were found by an automated security review of the first v0.3.0
+commit and fixed in a follow-up. They show the method working on its own output.
 
 ### Root causes and fixes
 
@@ -95,6 +101,16 @@ user's trust settings can be abused. *Low:* false alarms or inconsistent signals
 - **RT-08 / RT-09 / RT-10** — trust logic: the allowlist is ignored when the
   domain uses homoglyphs. Learned sites are excluded from the "official" check
   for their own domain. The background passes the allowlist to the engine.
+- **RT-17** — any input with a scheme, `@` or `\` is parsed by the WHATWG `URL`
+  parser (the browser's own), so Unmaskr judges exactly the host the browser
+  will visit. The manual fallback also splits on `\`.
+- **RT-18** — two trust levels. A brand name on a country domain stays
+  un-flagged (Google alone owns about 200 ccTLDs, so flagging them would flood
+  false alarms). Only **major-market** ccTLDs (`MAJOR_CC`: .de, .co.uk, .co.in…)
+  count as official for the page and link checks. Obscure ones get the label
+  "Brand name on a country domain", not "Official".
+- **RT-19** — the page checks are skipped only for an official brand site or a
+  user-allowlisted one, never a learned one.
 - **RT-11** — the block screen now lives in the browser's **top layer**
   (`popover`), so no z-index can cover it. Its box styles are inline
   `!important`, and a guard restores it if it is removed, restyled or closed.

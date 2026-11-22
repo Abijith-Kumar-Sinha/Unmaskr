@@ -82,16 +82,38 @@ export function letterScriptsOf(label: string): Set<string> {
 
 const ASCII_ONLY = /^[\x00-\x7f]*$/
 
+const SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i
+
 export function parseHost(input: string) {
   let host = input.trim().toLowerCase()
-  host = host.replace(/^[a-z][a-z0-9+.-]*:\/\//, '') // strip scheme
-  host = host.split(/[/?#]/)[0]
-  // Userinfo trick (RT-01): in https://paypal.com@evil.xyz everything before
-  // the last '@' is a throwaway username — the browser really goes to evil.xyz.
-  const at = host.lastIndexOf('@')
-  const userinfo = at >= 0 ? host.slice(0, at) : ''
-  host = host.slice(at + 1)
-  host = host.replace(/:\d+$/, '') // strip port
+  let userinfo = ''
+  // A full URL, or anything with a username part or a backslash, is parsed by
+  // the browser's own WHATWG URL parser, so we read the same host the browser
+  // will visit. A hand-rolled split disagreed on 'https://evil.xyz\@bank.com'
+  // (browsers treat '\' as '/', so that goes to evil.xyz) — a parser differential.
+  let parsed = false
+  if (SCHEME.test(host) || /[@\\]/.test(host)) {
+    try {
+      const u = new URL(SCHEME.test(host) ? host : 'http://' + host)
+      if (u.hostname) {
+        host = u.hostname
+        userinfo = decodeURIComponent(u.username + (u.password ? ':' + u.password : ''))
+        parsed = true
+      }
+    } catch {
+      /* not a valid URL: fall back to the manual split below */
+    }
+  }
+  if (!parsed) {
+    host = host.replace(SCHEME, '') // strip scheme
+    host = host.split(/[/\\?#]/)[0]
+    // Userinfo trick (RT-01): in https://paypal.com@evil.xyz everything before
+    // the last '@' is a throwaway username — the browser really goes to evil.xyz.
+    const at = host.lastIndexOf('@')
+    userinfo = at >= 0 ? host.slice(0, at) : ''
+    host = host.slice(at + 1)
+    host = host.replace(/:\d+$/, '') // strip port
+  }
   // Browsers drop invisible code points from hostnames (UTS #46 'ignored'),
   // so 'pay<ZWSP>pal.com' really is paypal.com — strip them the same way.
   host = host.replace(/\p{Default_Ignorable_Code_Point}/gu, '')
@@ -114,18 +136,34 @@ function mainstreamTld(lastLabel: string): boolean {
     (COMMON_TLDS.has(lastLabel) || /^[a-z]{2}$/.test(lastLabel))
 }
 
-function isOfficial(b: Brand, registrable: string, sld: string, lastLabel: string): boolean {
-  // ownsName: a global brand holds its exact name on mainstream TLDs. Match the
-  // RAW label (not its skeleton) so a confusable look-alike is never official.
-  return registrable === b.domain || !!b.altDomains?.includes(registrable) ||
-    (b.ownsName === true && sld === b.core && mainstreamTld(lastLabel))
+// Country domains of large markets where global brands really run their sites
+// and sign-in pages (amazon.de, google.co.in, apple.com.au). Brand-on-ccTLD
+// outside this set (paypal.ws, amazon.cc) is left un-flagged — Google alone
+// owns ~200 ccTLDs — but is NOT trusted enough to switch off the page checks.
+const MAJOR_CC = new Set([
+  'uk', 'de', 'fr', 'jp', 'ca', 'au', 'in', 'it', 'es', 'br', 'mx', 'nl', 'se', 'pl', 'tr', 'ae',
+  'sa', 'sg', 'eg', 'be', 'ie', 'at', 'ch', 'cn', 'kr', 'tw', 'hk', 'za', 'nz', 'ar', 'cl', 'id',
+  'my', 'ph', 'th', 'vn', 'pk', 'ng', 'ru', 'ua', 'cz', 'dk', 'fi', 'no', 'pt', 'gr', 'il', 'us', 'eu',
+])
+
+// ownsName: a global brand holds its exact name on mainstream TLDs. Match the
+// RAW label (not its skeleton) so a confusable look-alike is never official.
+// `strict` = only major-market ccTLDs (used for trust decisions).
+function ownsHere(b: Brand, sld: string, lastLabel: string, strict: boolean): boolean {
+  return b.ownsName === true && sld === b.core && mainstreamTld(lastLabel) &&
+    (!strict || COMMON_TLDS.has(lastLabel) || MAJOR_CC.has(lastLabel))
 }
 
-/** The curated brand this host officially belongs to, or null. Used by the
- *  page-level checks (link text, fake browser windows, brand-named logins). */
+function isOfficial(b: Brand, registrable: string, sld: string, lastLabel: string, strict = false): boolean {
+  return registrable === b.domain || !!b.altDomains?.includes(registrable) || ownsHere(b, sld, lastLabel, strict)
+}
+
+/** The curated brand this host officially belongs to, or null. Strict: used by
+ *  the page-level checks (link text, fake windows, brand-named logins), so a
+ *  brand name on an obscure ccTLD (paypal.ws) never switches them off. */
 export function officialBrandOf(input: string): Brand | null {
   const { registrable, sld, lastLabel } = parseHost(input)
-  return BRANDS.find((b) => isOfficial(b, registrable, sld, lastLabel)) ?? null
+  return BRANDS.find((b) => isOfficial(b, registrable, sld, lastLabel, true)) ?? null
 }
 
 export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<string>): Verdict {
@@ -229,11 +267,16 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
 
   // ── Legitimate official domain (and not disguised) → safe ──
   if (officialByDomain && !homoglyphUsed && !userinfo) {
+    // Don't claim "official" for a brand name on an obscure country domain —
+    // it is probably the brand's defensive registration, but unconfirmed.
+    const confirmed = isOfficial(officialByDomain, registrable, sld, lastLabel, true)
     return {
       input, host, registrable, sld, tld, skeleton: skeleton(host),
       level: 'safe', score: 2, brand: officialByDomain, similarity: 1,
       distance: 0, trace: [], homoglyphs: [], ops,
-      signals: [{ label: 'Official domain', detail: `Exact match for ${officialByDomain.name}'s real domain (${officialByDomain.domain}).`, weight: 0 }],
+      signals: [confirmed
+        ? { label: 'Official domain', detail: `Exact match for ${officialByDomain.name}'s real domain (${officialByDomain.domain}).`, weight: 0 }
+        : { label: 'Brand name on a country domain', detail: `${officialByDomain.name} usually owns its name on country domains, so ${registrable} is probably theirs — but Unmaskr can't confirm it. Check the address before you sign in.`, weight: 0 }],
     }
   }
 

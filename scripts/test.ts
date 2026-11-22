@@ -1,4 +1,4 @@
-import { analyze } from '../src/algorithms/scoring'
+import { analyze, officialBrandOf } from '../src/algorithms/scoring'
 
 const cases = [
   'paypal.com', // legit
@@ -58,4 +58,14 @@ const poisoned = [{ name: 'x', core: 'hdfcbank-netbanking', domain: 'hdfcbank-ne
 expect('hdfcbank-netbanking.com', 'flag', 'RT-09 learned site must not become official', poisoned)
 expect('github.com', 'safe', 'learned site itself stays safe', [{ name: 'github', core: 'github', domain: 'github.com', category: 'Your site' }])
 for (const d of ['google.com', 'paypal.co.uk', 'amazon.de', 'google.tk']) expect(d, d === 'google.tk' ? 'flag' : 'safe', 'official / defensive registration')
+// Post-push security review (REDTEAM.md RT-17..RT-19).
+// Browsers read '\' as '/', so these go to evil.xyz — never "official HDFC".
+for (const x of [String.raw`https://evil.xyz\@hdfcbank.com/login`, String.raw`evil.xyz\@hdfcbank.com`]) {
+  const v = analyze(x)
+  if (v.host !== 'evil.xyz' || v.brand?.name === 'HDFC Bank') throw new Error(`RT-17 backslash parser differential: ${x} -> ${v.host}`)
+}
+expect('https://hdfcbank.com@secure-check.xyz/login', 'dangerous', 'RT-01 still caught via URL parser')
+if (officialBrandOf('paypal.ws') !== null) throw new Error('RT-18: obscure ccTLD must not be trusted for page checks')
+if (officialBrandOf('www.amazon.de')?.name !== 'Amazon') throw new Error('RT-18: major ccTLD stays trusted')
+if (analyze('paypal.ws').signals[0].label === 'Official domain') throw new Error('RT-18: must not claim official on obscure ccTLD')
 console.log('red-team regressions: all OK')
