@@ -42,7 +42,7 @@ modify the extension or its storage.
    VAPT course folder) supplied the page-level attack list.
 3. **Exploit:** proof-of-concept attack pages (`scripts/redteam/pages/`) for
    attacks the domain can't reveal.
-4. **Report:** findings RT-01 … RT-19 below, rated by impact.
+4. **Report:** findings RT-01 … RT-20 below, rated by impact.
 5. **Fix → retest:** each fix is checked by re-running the fuzzer, the 50k
    Tranco false-positive sweep, the lab pages, and a regression test per finding
    (`scripts/test.ts`).
@@ -78,8 +78,11 @@ user's trust settings can be abused. *Low:* false alarms or inconsistent signals
 | RT-18 | A brand name on **any** 2-letter country domain (`paypal.ws`, `amazon.cc`) was labelled "Official" and switched off the page checks and link-text checks | Medium | trusted | page checks run; no "Official" label |
 | RT-19 | **Trust poisoning, page level:** learned sites skipped the page checks, and visits count per page load, so a fake login that reloads itself twice switched them off | Medium | possible | only official or user-allowlisted sites skip |
 
-RT-17 to RT-19 were found by an automated security review of the first v0.3.0
-commit and fixed in a follow-up. They show the method working on its own output.
+| RT-20 | **Fail-open parse:** a malformed `%` in the username (`https://hdfcbank.com%@secure-check.xyz`) made decoding throw after the host was read, so the username — and its decoy signal — was dropped | Medium | safe | block (raw username kept) |
+
+RT-17 to RT-20 were found by automated security reviews of the v0.3.0 commits
+(RT-20 in the RT-17 fix itself) and fixed in follow-ups. They show the method
+working on its own output: every fix gets re-attacked.
 
 ### Root causes and fixes
 

@@ -96,8 +96,17 @@ export function parseHost(input: string) {
     try {
       const u = new URL(SCHEME.test(host) ? host : 'http://' + host)
       if (u.hostname) {
+        // Fail closed (RT-20): a malformed %-escape in the username must not
+        // throw us out of this branch with the userinfo lost — keep it raw.
+        const raw = u.username + (u.password ? ':' + u.password : '')
+        let decoded = raw
+        try {
+          decoded = decodeURIComponent(raw)
+        } catch {
+          /* malformed escape: judge the raw text */
+        }
         host = u.hostname
-        userinfo = decodeURIComponent(u.username + (u.password ? ':' + u.password : ''))
+        userinfo = decoded
         parsed = true
       }
     } catch {

@@ -65,6 +65,8 @@ for (const x of [String.raw`https://evil.xyz\@hdfcbank.com/login`, String.raw`ev
   if (v.host !== 'evil.xyz' || v.brand?.name === 'HDFC Bank') throw new Error(`RT-17 backslash parser differential: ${x} -> ${v.host}`)
 }
 expect('https://hdfcbank.com@secure-check.xyz/login', 'dangerous', 'RT-01 still caught via URL parser')
+expect('https://hdfcbank.com%@secure-check.xyz/login', 'dangerous', 'RT-20 malformed % in userinfo must fail closed')
+expect('https://hdfcbank.com%zz@secure-check.xyz/', 'dangerous', 'RT-20 malformed % in userinfo must fail closed')
 if (officialBrandOf('paypal.ws') !== null) throw new Error('RT-18: obscure ccTLD must not be trusted for page checks')
 if (officialBrandOf('www.amazon.de')?.name !== 'Amazon') throw new Error('RT-18: major ccTLD stays trusted')
 if (analyze('paypal.ws').signals[0].label === 'Official domain') throw new Error('RT-18: must not claim official on obscure ccTLD')
