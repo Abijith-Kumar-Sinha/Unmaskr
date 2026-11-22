@@ -1,17 +1,22 @@
 /// <reference types="chrome" />
-import { analyze, type Verdict } from '../algorithms/scoring'
-import { getAllow } from './storage'
-import type { Brand } from '../data/brands'
+import { analyze, officialBrandOf, parseHost, type Verdict } from '../algorithms/scoring'
+import { BRANDS, type Brand } from '../data/brands'
+import { getAllow, getTrustedBrands } from './storage'
 
 // Build-time flag, replaced by esbuild `define`. `true` in dev/demo builds,
 // `false` in the published store build (`build:ext:store`) so the demo hook below
 // is dead-code-eliminated out of the shipped bundle.
 declare const __PG_DEMO__: boolean
 
-// Three layers of protection on every page:
-//  1. If the page itself is a dangerous lookalike  -> full-screen block screen.
-//  2. If it is suspicious                          -> a top warning bar.
-//  3. Any dangerous/suspicious LINK on the page    -> flagged inline before you click.
+// Layers of protection on every page:
+//  1. The page's own domain is a dangerous lookalike    -> full-screen block screen.
+//  2. It is suspicious                                  -> a top warning bar;
+//     suspicious AND asking for a password/OTP          -> block screen.
+//  3. Page-level tricks the domain can't reveal (red-team pass):
+//     a login that names a brand it isn't, a fake browser window (BitB), a
+//     login built in a blob: URL, an embedded lookalike frame -> warning bar.
+//  4. Any dangerous/suspicious LINK on the page, or a link whose text shows a
+//     brand's address but goes elsewhere -> flagged inline before you click.
 
 let TRUSTED: Brand[] = []
 let ALLOW = new Set<string>()
@@ -19,21 +24,8 @@ const cache = new Map<string, Verdict>()
 // Re-inject guard state for the block screen (see blockScreen).
 let blockGuard: MutationObserver | null = null
 let blockDismissed = false
-
-async function loadTrusted(): Promise<Brand[]> {
-  try {
-    const r = await chrome.storage.local.get('pg_visits')
-    const v = (r['pg_visits'] ?? {}) as Record<string, { count: number; sld: string }>
-    const out: Brand[] = []
-    for (const [registrable, info] of Object.entries(v)) {
-      if (info.count >= 3 && info.sld.length >= 4)
-        out.push({ name: info.sld, core: info.sld, domain: registrable, category: 'Your site' })
-    }
-    return out
-  } catch {
-    return []
-  }
-}
+let pageVerdict: Verdict | null = null
+let pageWarned = false
 
 function check(host: string): Verdict {
   let v = cache.get(host)
@@ -60,8 +52,28 @@ function glyphHtml(host: string): string {
   return s
 }
 
+// The page's real host. A blob: page (blob:https://evil.xyz/uuid) has no
+// hostname of its own — its origin carries the site that generated it.
+function pageHost(): string {
+  if (location.hostname) return location.hostname
+  try {
+    return location.protocol === 'blob:' ? new URL(location.origin).hostname : ''
+  } catch {
+    return ''
+  }
+}
+
 // ── 1. Full-screen block screen ──────────────────────────────────────────
-function blockScreen(v: Verdict) {
+// Hardened against a hostile page (RT-11): it lives in the browser's top layer
+// (popover), so no z-index can cover it; its box styles are inline !important,
+// so page CSS can't hide it; and a guard puts it back if the page removes it
+// or tampers with its attributes.
+const HOST_CSS = 'all:initial!important;position:fixed!important;inset:0!important;display:block!important;' +
+  'visibility:visible!important;opacity:1!important;width:100vw!important;height:100vh!important;' +
+  'max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;' +
+  'border:0!important;background:transparent!important;z-index:2147483647!important;overflow:hidden!important'
+
+function blockScreen(v: Verdict, askingForSecrets = false) {
   if (document.getElementById('unmaskr-host')) return
   // Tell the background a block was actually shown, so "Threats blocked" counts it.
   chrome.runtime
@@ -71,6 +83,7 @@ function blockScreen(v: Verdict) {
   const homo = v.homoglyphs.length
     ? `<div class="pg-note">Disguised with ${v.homoglyphs.length} look-alike character${v.homoglyphs.length > 1 ? 's' : ''}: real address is <b>${esc(v.skeleton)}</b></div>`
     : ''
+  const secrets = askingForSecrets ? ' <b>It is asking for your password or OTP right now.</b>' : ''
   const host = document.createElement('div')
   host.id = 'unmaskr-host'
   const sh = host.attachShadow({ mode: 'closed' })
@@ -106,7 +119,7 @@ function blockScreen(v: Verdict) {
   <div class="wrap"><div class="card">
     <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.3 8 10 4.6-1.7 8-5 8-10V5l-8-3z"/><path d="M12 8.5v4.5M12 16.5h.01"/></svg></div>
     <h1>Phishing site blocked</h1>
-    <div class="sub">This page is pretending to be <b>${brand}</b>. Entering your password, OTP or payment details here could hand them to attackers.</div>
+    <div class="sub">This page is pretending to be <b>${brand}</b>. Entering your password, OTP or payment details here could hand them to attackers.${secrets}</div>
     <div class="host">${glyphHtml(v.host)}</div>
     ${homo}
     <div class="risk"><span class="dot"></span> Risk score ${v.score}/100</div>
@@ -116,8 +129,25 @@ function blockScreen(v: Verdict) {
     </div>
     <div class="by">Protected by Unmaskr</div>
   </div></div>`
+  // The browser re-serialises cssText, so compare against what it stored.
+  let wantCss = ''
+  const isOpen = () => {
+    try {
+      return host.matches(':popover-open')
+    } catch {
+      return true // no popover support: nothing to re-open
+    }
+  }
   const reattach = () => {
-    document.documentElement.appendChild(host)
+    if (host.getAttribute('popover') !== 'manual') host.setAttribute('popover', 'manual')
+    host.style.cssText = HOST_CSS
+    wantCss = host.style.cssText
+    if (!host.isConnected) document.documentElement.appendChild(host)
+    try {
+      if (!isOpen()) host.showPopover()
+    } catch {
+      /* no popover support: inline z-index still applies */
+    }
     document.documentElement.style.overflow = 'hidden'
   }
   reattach()
@@ -132,20 +162,26 @@ function blockScreen(v: Verdict) {
     host.remove()
     document.documentElement.style.overflow = ''
   })
-  // Re-inject guard: a hostile page can delete our overlay from its own DOM.
-  // Put it back unless the user explicitly chose "Continue anyway" (or paused us).
+  // Re-inject guard: a hostile page can delete our overlay, restyle it, or close
+  // its popover. Put it back unless the user chose "Continue anyway" (or paused us).
   blockDismissed = false
   blockGuard?.disconnect()
   blockGuard = new MutationObserver(() => {
-    if (!blockDismissed && !host.isConnected) reattach()
+    if (blockDismissed) return
+    if (!host.isConnected || host.style.cssText !== wantCss || !isOpen()) reattach()
   })
   blockGuard.observe(document.documentElement, { childList: true })
+  blockGuard.observe(host, { attributes: true })
+  host.addEventListener('toggle', () => {
+    if (!blockDismissed && !isOpen()) reattach()
+  })
 }
 
-// ── 2. Suspicious top bar ────────────────────────────────────────────────
-function topBar(v: Verdict) {
-  if (document.getElementById('unmaskr-bar')) return
-  const brand = esc(v.brand ? v.brand.name : 'a trusted site')
+// ── 2. Warning bar (suspicious domain, or a page-level trick) ────────────
+// `html` must already be escaped by the caller.
+function topBar(html: string) {
+  if (document.getElementById('unmaskr-bar') || document.getElementById('unmaskr-host')) return
+  chrome.runtime.sendMessage({ type: 'pg-warn' }).catch(() => {})
   const el = document.createElement('div')
   el.id = 'unmaskr-bar'
   const sh = el.attachShadow({ mode: 'closed' })
@@ -163,13 +199,142 @@ function topBar(v: Verdict) {
     button:hover{background:rgba(240,180,41,.24);}
   </style>
   <div class="bar"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
-  <span>Unmaskr: this domain looks suspicious &mdash; possibly imitating <b>${brand}</b>. Be careful.</span>
+  <span>Unmaskr: ${html}</span>
   <button id="x">Dismiss</button></div>`
   document.documentElement.appendChild(el)
   sh.getElementById('x')?.addEventListener('click', () => el.remove())
 }
 
-// ── 3. In-page link scanning ─────────────────────────────────────────────
+// ── 3. Page-level checks ─────────────────────────────────────────────────
+// A visible field that takes a secret: password, OTP, card number, CVV, MPIN.
+const SECRET_FIELDS = 'input[type=password],input[autocomplete~="one-time-code"],input[autocomplete~="cc-number"],' +
+  'input[autocomplete~="cc-csc"],input[name*="otp" i],input[name*="mpin" i],input[name*="cvv" i]'
+
+function askingForSecrets(root: ParentNode = document): boolean {
+  for (const i of root.querySelectorAll<HTMLInputElement>(SECRET_FIELDS)) {
+    if (i.type !== 'hidden' && !i.disabled && i.getClientRects().length) return true
+  }
+  return false
+}
+
+const reEscape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const word = (w: string, flags: string) => new RegExp(`(^|[^\\p{L}\\p{N}])${reEscape(w)}($|[^\\p{L}\\p{N}])`, flags)
+
+// A protected brand named in the page's title / og:site_name. 3-letter
+// acronyms (SBI, LIC) must appear in capitals, so "sbi" inside a word won't hit.
+function brandNamed(): Brand | null {
+  const raw = `${document.title} ${document.querySelector('meta[property="og:site_name"]')?.getAttribute('content') ?? ''}`
+  for (const b of BRANDS) {
+    if (b.name.length >= 4 && word(b.name, 'iu').test(raw)) return b
+    if (b.name.length === 3 && word(b.name, 'u').test(raw)) return b
+    if (b.core.length >= 5 && word(b.core, 'iu').test(raw)) return b
+  }
+  return null
+}
+
+// Browser-in-the-browser: a fake pop-up drawn inside the page, with a fake
+// address bar showing a brand's sign-in address above an iframe that actually
+// loads the attacker's form. Heuristic: inside a fixed/absolute box that holds
+// a visible iframe, an "address bar" — a non-link element whose whole text (or
+// an input's value) is a protected brand's address — sits before the iframe,
+// while neither the page nor the iframe belongs to that brand. (A genuine
+// embed — a YouTube player captioned "youtube.com" — has the iframe on the
+// brand's own domain, so it is skipped.)
+function addressBarIn(box: Element, frame: Element): string | null {
+  const els = box.querySelectorAll('div,span,p,input,b,strong')
+  for (let i = 0; i < els.length && i < 300; i++) {
+    const el = els[i]
+    if (el.contains(frame) || el.closest('a')) continue
+    if (!(el.compareDocumentPosition(frame) & Node.DOCUMENT_POSITION_FOLLOWING)) continue
+    const text = (el instanceof HTMLInputElement ? el.value : el.children.length ? '' : el.textContent ?? '').trim()
+    const m = text.match(ADDRESS_TEXT)
+    if (m) return m[1].toLowerCase()
+  }
+  return null
+}
+
+function fakeBrowserWindow(): { shown: string; brand: Brand } | null {
+  const pageBrand = officialBrandOf(pageHost())
+  for (const f of document.querySelectorAll('iframe')) {
+    if (!f.getClientRects().length) continue
+    let frameBrand: Brand | null = null
+    try {
+      frameBrand = officialBrandOf(new URL(f.src, location.href).hostname)
+    } catch {
+      /* srcdoc / about:blank */
+    }
+    let el = f.parentElement
+    for (let i = 0; el && i < 5; i++, el = el.parentElement) {
+      const pos = getComputedStyle(el).position
+      if (pos !== 'fixed' && pos !== 'absolute') continue
+      const shown = addressBarIn(el, f)
+      const b = shown ? officialBrandOf(shown) : null
+      if (shown && b && b !== pageBrand && b !== frameBrand) return { shown, brand: b }
+    }
+  }
+  return null
+}
+
+function pageChecks() {
+  if (pageWarned || document.getElementById('unmaskr-host')) return
+  const v = pageVerdict
+  const host = pageHost()
+  const secrets = askingForSecrets()
+
+  // Suspicious domain + a live password/OTP field → escalate to a block.
+  if (v && v.level === 'suspicious' && secrets) {
+    document.getElementById('unmaskr-bar')?.remove()
+    pageWarned = true
+    return blockScreen(v, true)
+  }
+
+  // Everything below is for pages whose domain itself looked fine. Skip sites
+  // the user trusts: an official brand site, a learned site, an allowlisted one.
+  const { registrable } = parseHost(host)
+  const trusted = officialBrandOf(host) || TRUSTED.some((b) => b.domain === registrable) || ALLOW.has(registrable)
+  if (trusted) return
+
+  const warn = (html: string) => {
+    pageWarned = true
+    topBar(html)
+  }
+
+  // A blob: page that asks for a password: phishing kits build the login inside
+  // the browser so email scanners and URL blocklists never see a server.
+  if (location.protocol === 'blob:' && secrets) {
+    return warn('this login page was <b>generated inside your browser</b> (a blob: address), a trick phishing kits use to hide from scanners. Don&#39;t enter your password here.')
+  }
+
+  // A login that names a brand it isn't.
+  if (secrets) {
+    const b = brandNamed()
+    if (b) {
+      return warn(`this page calls itself <b>${esc(b.name)}</b> and asks for your password, but <b>${esc(registrable || host)}</b> is not ${esc(b.name)}&#39;s site (${esc(b.domain)}).`)
+    }
+  }
+
+  // A fake browser window (BitB).
+  const bitb = fakeBrowserWindow()
+  if (bitb) {
+    return warn(`this page shows a <b>fake sign-in window</b> pretending to be <b>${esc(bitb.shown)}</b> (${esc(bitb.brand.name)}). A real sign-in opens in its own browser window with its own address bar.`)
+  }
+
+  // An embedded frame from a lookalike domain.
+  for (const f of document.querySelectorAll<HTMLIFrameElement>('iframe[src]')) {
+    try {
+      const u = new URL(f.src, location.href)
+      if ((u.protocol !== 'http:' && u.protocol !== 'https:') || u.hostname === host) continue
+      const fv = check(u.hostname)
+      if (fv.level === 'dangerous') {
+        return warn(`this page embeds content from <b>${esc(fv.host)}</b>, a lookalike of ${esc(fv.brand?.name ?? 'a trusted site')}.`)
+      }
+    } catch {
+      /* bad URL */
+    }
+  }
+}
+
+// ── 4. In-page link scanning ─────────────────────────────────────────────
 function ensureLinkStyle() {
   if (document.getElementById('pg-link-style')) return
   const st = document.createElement('style')
@@ -184,31 +349,61 @@ function ensureLinkStyle() {
   document.documentElement.appendChild(st)
 }
 
+function flagLink(a: HTMLAnchorElement, danger: boolean, label: string, title: string) {
+  a.dataset.pg = danger ? 'danger' : 'warn'
+  const flag = document.createElement('span')
+  flag.className = 'pg-flag ' + (danger ? 'd' : 'w')
+  flag.textContent = label
+  flag.title = title
+  a.insertAdjacentElement('afterend', flag)
+}
+
+// Link text that is itself an address ("www.hdfcbank.com", "https://paypal.com/x").
+const ADDRESS_TEXT = /^(?:https?:\/\/)?((?:[a-z0-9-]+\.)+[a-z]{2,})(?:[/:?#]\S*)?$/i
+
 function scanLinks() {
   ensureLinkStyle()
+  const here = pageHost()
   const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href]')
   let flagged = 0
   anchors.forEach((a) => {
     if (a.dataset.pgSeen) return
     a.dataset.pgSeen = '1'
-    let host: string
+    let u: URL
     try {
-      const u = new URL(a.href, location.href)
-      if (u.protocol !== 'http:' && u.protocol !== 'https:') return
-      host = u.hostname
-      if (host === location.hostname) return // same-site links
+      u = new URL(a.href, location.href)
     } catch {
       return
     }
-    const v = check(host)
+    // A data:text/html link opens a page that has no address at all.
+    if (u.protocol === 'data:') {
+      if (/^data:text\/html/i.test(a.href)) {
+        flagLink(a, false, '⚠ hidden page', 'Unmaskr: this link opens a page with no real address (data: URL) — a way to hide a fake login.')
+        flagged++
+      }
+      return
+    }
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return
+    const host = u.hostname
+
+    // Text shows a brand's address, but the link goes somewhere else.
+    const shown = (a.textContent ?? '').trim().match(ADDRESS_TEXT)
+    if (shown) {
+      const shownBrand = officialBrandOf(shown[1])
+      if (shownBrand && officialBrandOf(host) !== shownBrand) {
+        flagLink(a, true, '⚠ fake link', `Unmaskr: the link text shows ${shown[1]} (${shownBrand.name}), but it really goes to ${host}.`)
+        flagged++
+        return
+      }
+    }
+
+    if (host === here) return // same-site links
+    // The userinfo trick needs the full href (https://bank.com@evil.xyz).
+    const v = u.username ? analyze(a.href, TRUSTED, ALLOW) : check(host)
     if (v.level === 'safe') return
     const danger = v.level === 'dangerous'
-    a.dataset.pg = danger ? 'danger' : 'warn'
-    const flag = document.createElement('span')
-    flag.className = 'pg-flag ' + (danger ? 'd' : 'w')
-    flag.textContent = danger ? '⚠ fake' : '⚠ risky'
-    flag.title = `Unmaskr: ${host} ${danger ? 'looks like a fake of' : 'may imitate'} ${v.brand ? v.brand.name : 'a brand'} (risk ${v.score}/100)`
-    a.insertAdjacentElement('afterend', flag)
+    flagLink(a, danger, danger ? '⚠ fake' : '⚠ risky',
+      `Unmaskr: ${v.host} ${danger ? 'looks like a fake of' : 'may imitate'} ${v.brand ? v.brand.name : 'a brand'} (risk ${v.score}/100)`)
     flagged++
   })
   return flagged
@@ -232,10 +427,11 @@ function teardown() {
   document.getElementById('unmaskr-bar')?.remove()
   document.documentElement.style.overflow = ''
   document.querySelectorAll('.pg-flag').forEach((e) => e.remove())
-  document.querySelectorAll<HTMLAnchorElement>('a[data-pg]').forEach((a) => {
+  document.querySelectorAll<HTMLAnchorElement>('a[data-pg], a[data-pg-seen]').forEach((a) => {
     a.removeAttribute('data-pg')
     delete a.dataset.pgSeen
   })
+  pageWarned = false
 }
 
 // ── Orchestrate ──────────────────────────────────────────────────────────
@@ -244,7 +440,7 @@ let observing = false
 async function run() {
   if (window.top !== window.self) return
   if (!(await isEnabled())) return // master switch: paused
-  TRUSTED = await loadTrusted()
+  TRUSTED = await getTrustedBrands()
   ALLOW = new Set(await getAllow())
   cache.clear() // trusted/allow may have changed since the last run
 
@@ -254,7 +450,7 @@ async function run() {
   // the published bundle. Even in demo builds the value is attacker-controllable,
   // so we accept it ONLY if it is a plausible hostname — never HTML, spaces or
   // scripts (esc() also escapes at render time — defense in depth).
-  let target = location.hostname
+  let target = pageHost()
   let demoForced = false
   if (__PG_DEMO__) {
     const test = location.hash.match(/unmaskr-test=([^&\s]+)/)
@@ -266,21 +462,36 @@ async function run() {
       }
     }
   }
-  const v = check(target)
+  pageVerdict = target ? check(target) : null
+  const v = pageVerdict
 
-  if (v.level === 'dangerous') blockScreen(v)
-  else if (v.level === 'suspicious' || (demoForced && v.level !== 'safe')) topBar(v)
+  if (v?.level === 'dangerous') blockScreen(v)
+  else if (v && (v.level === 'suspicious' || (demoForced && v.level !== 'safe'))) {
+    topBar(`this domain looks suspicious &mdash; possibly imitating <b>${esc(v.brand ? v.brand.name : 'a trusted site')}</b>. Be careful.`)
+  }
 
-  // Scan links now and again as the page grows (debounced). Attach the
-  // observer only once, even if run() is re-invoked after re-enabling.
+  // Scan links and run page checks now and again as the page grows
+  // (debounced — logins and fake windows often appear after a click). Attach
+  // the observer only once, even if run() is re-invoked after re-enabling.
   scanLinks()
+  pageChecks()
   if (!observing) {
     let t = 0
-    const obs = new MutationObserver(() => {
+    const rescan = () => {
       clearTimeout(t)
-      t = window.setTimeout(scanLinks, 600)
+      t = window.setTimeout(() => {
+        scanLinks()
+        pageChecks()
+      }, 600)
+    }
+    // New nodes, or a hidden dialog/window being revealed. (Not every style
+    // change — animated pages would starve the debounce.)
+    new MutationObserver(rescan).observe(document.documentElement, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'open'],
     })
-    obs.observe(document.documentElement, { childList: true, subtree: true })
+    // Fake sign-in windows usually appear right after the victim clicks
+    // "Sign in with…", often by flipping a CSS class — re-check after clicks.
+    document.addEventListener('click', rescan, true)
     observing = true
   }
 }

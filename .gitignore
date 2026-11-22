@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 extension-dist
+extension-dist-v020
 *.local
 
 # Evaluation: large raw downloads + regenerable caches (run scripts/eval/prep.ts).

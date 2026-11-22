@@ -1,6 +1,6 @@
 /// <reference types="chrome" />
 import { analyze, type Level } from '../algorithms/scoring'
-import { getTrustedBrands, recordVisit, bumpScanned, recordBlock, getEnabled, ENABLED_KEY } from './storage'
+import { getTrustedBrands, recordVisit, bumpScanned, recordBlock, getEnabled, getAllow, ENABLED_KEY } from './storage'
 
 const BADGE: Record<Level, { text: string; color: string }> = {
   safe: { text: '', color: '#4c8dff' },
@@ -15,7 +15,9 @@ const blockedTabs = new Set<number>()
 
 function hostFromUrl(url: string): string | null {
   try {
-    const u = new URL(url)
+    let u = new URL(url)
+    // blob:https://evil.xyz/uuid — judge the site that generated the page.
+    if (u.protocol === 'blob:' && u.origin !== 'null') u = new URL(u.origin)
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return null
     return u.hostname
   } catch {
@@ -37,7 +39,9 @@ async function checkTab(tabId: number, url: string | undefined, count: boolean) 
   }
 
   const trusted = await getTrustedBrands()
-  const v = analyze(host, trusted)
+  // Pass the allowlist too, so the badge agrees with the page (RT-10: a
+  // reported-safe site used to keep a red ✕ badge while the page showed nothing).
+  const v = analyze(host, trusted, new Set(await getAllow()))
 
   const b = BADGE[v.level]
   // Don't downgrade a tab that's actively showing a block screen (the overlay's
@@ -84,6 +88,16 @@ chrome.runtime.onInstalled.addListener(() => {
 // (Only the extension's own contexts can reach this; web pages cannot. We still
 // validate + clamp the payload as defense-in-depth.)
 chrome.runtime.onMessage.addListener((msg, sender) => {
+  // A page-level warning (fake login, BitB window, …) → amber badge, unless the
+  // tab is already showing a block screen.
+  if (msg?.type === 'pg-warn') {
+    const tabId = sender.tab?.id
+    if (tabId != null && !blockedTabs.has(tabId)) {
+      chrome.action.setBadgeText({ tabId, text: BADGE.suspicious.text }).catch(() => {})
+      chrome.action.setBadgeBackgroundColor({ tabId, color: BADGE.suspicious.color }).catch(() => {})
+    }
+    return
+  }
   if (msg?.type !== 'pg-block') return
   const host = typeof msg.host === 'string' ? msg.host.slice(0, 253) : ''
   if (!host) return

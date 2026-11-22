@@ -1,0 +1,27 @@
+<!doctype html>
+<!-- RT-12 PoC: a phishing kit on an unrelated domain (compromised site / free
+     host) whose domain looks nothing like the brand. Domain-only detection sees
+     nothing; Unmaskr's page check sees "names HDFC Bank + asks for a password". -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HDFC Bank NetBanking - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="harness.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f2f4f8; margin: 0; padding: 80px 16px; }
+    form { max-width: 340px; margin: auto; background: #fff; padding: 24px; border-radius: 10px; box-shadow: 0 2px 12px #0002; }
+    h1 { font-size: 20px; color: #004c8f; margin-top: 0; }
+    input { display: block; width: 100%; box-sizing: border-box; margin: 10px 0; padding: 10px; }
+    button { background: #004c8f; color: #fff; border: 0; padding: 10px 16px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <form onsubmit="return false">
+    <h1>NetBanking Login</h1>
+    <input placeholder="Customer ID">
+    <input type="password" placeholder="IPIN (Password)">
+    <button>Continue</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- RT-01 / RT-14 / RT-15 PoC: the link tricks of a phishing e-mail or post. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Your account update</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="harness.js"></script>
+  <style>body { font-family: system-ui, sans-serif; padding: 24px; line-height: 2; max-width: 640px; }</style>
+</head>
+<body>
+  <h2>Link tricks</h2>
+  <ol>
+    <li>Text shows the bank, link goes elsewhere: <a id="t-mismatch" href="https://secure-verify-portal.top/login">www.hdfcbank.com</a></li>
+    <li>Username trick: <a id="t-userinfo" href="https://hdfcbank.com@secure-check.xyz/login">verify your account</a></li>
+    <li>Page with no address: <a id="t-data" href="data:text/html,<h1>Login</h1>">open secure message</a></li>
+    <li>Decoy sub-domain: <a id="t-decoy" href="https://paypal.com.account-check.xyz/">PayPal resolution centre</a></li>
+    <li>Combosquat: <a id="t-combo" href="https://hdfcbank-netbanking.com/">NetBanking</a></li>
+    <li>Control, real PayPal: <a id="t-legit" href="https://www.paypal.com/in/home">paypal.com</a></li>
+    <li>Control, real Google on a ccTLD: <a id="t-legit2" href="https://www.google.co.in/">google.com</a></li>
+  </ol>
+</body>
+</html>

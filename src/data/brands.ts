@@ -23,7 +23,7 @@ export const BRANDS: Brand[] = [
   { name: 'SBI', core: 'sbi', domain: 'sbi.co.in', category: 'Bank' },
   { name: 'HDFC Bank', core: 'hdfcbank', domain: 'hdfcbank.com', category: 'Bank' },
   { name: 'ICICI Bank', core: 'icicibank', domain: 'icicibank.com', category: 'Bank' },
-  { name: 'Axis Bank', core: 'axisbank', domain: 'axisbank.com', category: 'Bank' },
+  { name: 'Axis Bank', core: 'axisbank', domain: 'axisbank.com', category: 'Bank', altDomains: ['axisbank.co.in'] },
   { name: 'Kotak', core: 'kotak', domain: 'kotak.com', category: 'Bank' },
   { name: 'Bank of Baroda', core: 'bankofbaroda', domain: 'bankofbaroda.in', category: 'Bank' },
   { name: 'Punjab National Bank', core: 'pnbindia', domain: 'pnbindia.in', category: 'Bank' },
@@ -39,7 +39,7 @@ export const BRANDS: Brand[] = [
   { name: 'Google', core: 'google', domain: 'google.com', category: 'Tech', ownsName: true,
     altDomains: ['googleapis.com', 'gstatic.com', 'googleusercontent.com', 'googletagmanager.com', 'googlevideo.com', 'googlesyndication.com', 'googleadservices.com', 'google-analytics.com', 'googledomains.com', 'withgoogle.com', 'goo.gl'] },
   { name: 'Microsoft', core: 'microsoft', domain: 'microsoft.com', category: 'Tech', ownsName: true,
-    altDomains: ['microsoftonline.com', 'office.com', 'live.com', 'msftauth.net', 'windows.net', 'azureedge.net', 'sharepoint.com'] },
+    altDomains: ['microsoftonline.com', 'office.com', 'live.com', 'outlook.com', 'msftauth.net', 'windows.net', 'azureedge.net', 'sharepoint.com'] },
   { name: 'Apple', core: 'apple', domain: 'apple.com', category: 'Tech', ownsName: true,
     altDomains: ['apple-dns.net', 'icloud.com', 'mzstatic.com', 'cdn-apple.com'] },
   { name: 'Facebook', core: 'facebook', domain: 'facebook.com', category: 'Social', ownsName: true,
@@ -54,14 +54,32 @@ export const BRANDS: Brand[] = [
     altDomains: ['youtu.be', 'ytimg.com', 'youtube-nocookie.com'] },
   // Shopping
   { name: 'Amazon', core: 'amazon', domain: 'amazon.in', category: 'Shopping', ownsName: true,
-    altDomains: ['amazonaws.com', 'amazon-adsystem.com', 'ssl-images-amazon.com', 'media-amazon.com', 'images-amazon.com', 'primevideo.com', 'a2z.com'] },
+    altDomains: ['amazonaws.com', 'amazon-adsystem.com', 'ssl-images-amazon.com', 'media-amazon.com', 'images-amazon.com', 'primevideo.com', 'a2z.com', 'amzn.to'] },
   { name: 'Flipkart', core: 'flipkart', domain: 'flipkart.com', category: 'Shopping', ownsName: true,
     altDomains: ['flixcart.com', 'fkrt.it'] },
   { name: 'Myntra', core: 'myntra', domain: 'myntra.com', category: 'Shopping', ownsName: true },
   // Logistics / Gov
-  { name: 'India Post', core: 'indiapost', domain: 'indiapost.gov.in', category: 'Logistics' },
+  { name: 'India Post', core: 'indiapost', domain: 'indiapost.gov.in', category: 'Logistics', altDomains: ['ippbonline.com'] },
   { name: 'IRCTC', core: 'irctc', domain: 'irctc.co.in', category: 'Travel' },
   { name: 'EPFO', core: 'epfindia', domain: 'epfindia.gov.in', category: 'Government' },
+  // Added in the red-team pass (gap B): Indian government-scheme, telecom and
+  // insurance lures from the India smishing wave, plus more banks and the
+  // global brands that dominate brand-phishing reports.
+  { name: 'Income Tax Department', core: 'incometax', domain: 'incometax.gov.in', category: 'Government', altDomains: ['incometaxindia.gov.in'] },
+  { name: 'UIDAI (Aadhaar)', core: 'uidai', domain: 'uidai.gov.in', category: 'Government' },
+  { name: 'DigiLocker', core: 'digilocker', domain: 'digilocker.gov.in', category: 'Government' },
+  { name: 'Parivahan (e-Challan)', core: 'parivahan', domain: 'parivahan.gov.in', category: 'Government' },
+  { name: 'NPCI', core: 'npci', domain: 'npci.org.in', category: 'Payments' },
+  { name: 'LIC', core: 'licindia', domain: 'licindia.in', category: 'Insurance' },
+  { name: 'IndusInd Bank', core: 'indusind', domain: 'indusind.com', category: 'Bank' },
+  { name: 'Yes Bank', core: 'yesbank', domain: 'yesbank.in', category: 'Bank' },
+  { name: 'IDFC FIRST Bank', core: 'idfcfirstbank', domain: 'idfcfirstbank.com', category: 'Bank' },
+  { name: 'Union Bank of India', core: 'unionbankofindia', domain: 'unionbankofindia.co.in', category: 'Bank' },
+  { name: 'Bajaj Finserv', core: 'bajajfinserv', domain: 'bajajfinserv.in', category: 'Finance' },
+  { name: 'Airtel', core: 'airtel', domain: 'airtel.in', category: 'Telecom', altDomains: ['airtel.com'] },
+  { name: 'LinkedIn', core: 'linkedin', domain: 'linkedin.com', category: 'Social', ownsName: true, altDomains: ['licdn.com', 'lnkd.in'] },
+  { name: 'Coinbase', core: 'coinbase', domain: 'coinbase.com', category: 'Crypto', ownsName: true },
+  { name: 'MetaMask', core: 'metamask', domain: 'metamask.io', category: 'Crypto' },
 ]
 
 // TLDs commonly abused for throwaway phishing domains.
@@ -69,16 +87,25 @@ export const SUSPICIOUS_TLDS = new Set([
   'xyz', 'top', 'tk', 'ml', 'ga', 'cf', 'gq', 'buzz', 'click', 'link',
   'live', 'online', 'site', 'website', 'club', 'icu', 'rest', 'cam',
   'support', 'work', 'fit', 'shop', 'store', 'win', 'bid', 'loan',
+  // Cheap new gTLDs heavily used for phishing (red-team RT-03: a brand's
+  // exact name on these read as "official" before).
+  'sbs', 'cfd', 'bond', 'cyou', 'autos', 'lol', 'beauty', 'quest', 'mom',
+  'hair', 'skin', 'makeup', 'boats', 'monster', 'vip', 'pw',
 ])
 
-// Mainstream TLDs a legitimate Indian brand is likely to use.
+// Mainstream TLDs where a global brand that owns its name is expected to sit
+// (2-letter ccTLDs are accepted separately in scoring.ts mainstreamTld()).
 export const COMMON_TLDS = new Set([
-  'com', 'in', 'co', 'org', 'net', 'gov', 'app', 'io', 'me', 'info',
+  'com', 'in', 'co', 'org', 'net', 'gov', 'app', 'io', 'me', 'info', 'dev', 'biz', 'edu',
 ])
 
-// Words attackers bolt onto a brand to manufacture urgency.
+// Words attackers bolt onto a brand to manufacture urgency. The second line is
+// India-specific bait (net-banking, Aadhaar/KYC, e-challan, parcel redelivery).
 export const LURE_WORDS = [
   'login', 'verify', 'secure', 'account', 'update', 'kyc', 'support',
   'reward', 'refund', 'offer', 'bonus', 'wallet', 'signin', 'confirm',
   'alert', 'block', 'unlock', 'service', 'help', 'care', 'official',
+  'netbanking', 'banking', 'yono', 'cashback', 'aadhaar', 'aadhar', 'ekyc', 'redeem',
+  'prize', 'lottery', 'gift', 'claim', 'pension', 'subsidy', 'challan', 'fastag',
+  'parcel', 'redelivery', 'tracking', 'points', 'creditcard', 'upi',
 ]

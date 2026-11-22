@@ -314,7 +314,14 @@ function VerdictBlock({ v, allowed, onReport, onUndo }: { v: Verdict; allowed: b
         ))}
       </ul>
 
-      {allowed ? (
+      {v.homoglyphs.length > 0 ? (
+        // A disguised domain can't be allowlisted (one mis-click must not
+        // whitelist pаypal.com forever). Still let the user undo an old entry.
+        <div className="fpnote">
+          <span>Uses disguised characters, so it can&apos;t be marked safe.</span>
+          {allowed && <button className="link" onClick={onUndo}>Remove from safe list</button>}
+        </div>
+      ) : allowed ? (
         <div className="fpnote">
           <span>You marked this site as safe.</span>
           <button className="link" onClick={onUndo}>Undo</button>

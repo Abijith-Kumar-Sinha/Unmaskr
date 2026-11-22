@@ -53,7 +53,7 @@ The engine is a 4-stage pipeline, implemented as pure framework-free TypeScript,
 
 **Extension layers**
 - `background.ts` — service worker: per-tab badge, protection stats, learns history.
-- `content.ts` — block screen (dangerous) / top bar (suspicious) / in-page link scanner.
+- `content.ts` — block screen (dangerous, tamper-resistant top-layer overlay) / top bar (suspicious) / in-page link scanner, plus page-level checks added in v0.3.0: a password/OTP field on a page that names a brand it isn't, fake "browser-in-the-browser" sign-in windows, link text that shows a brand's address but goes elsewhere, and blob:/data: login pages.
 - `popup.tsx` — dashboard: stats, current verdict, homoglyph + alignment view, recent threats, manual checker.
 - `storage.ts` — visit counts, trusted-site learning, stats, recent threats (`chrome.storage.local`).
 
@@ -121,8 +121,9 @@ npm run dev              # web demo (dev sandbox)
 
 ## 7. Known Bugs / Limitations
 
-- **Finite brand list** — the protected brand list (~30, India-focused) is curated, not exhaustive. (The confusables map and TLD parsing now use the full Unicode UTS #39 table and the Public Suffix List respectively.)
-- **Purely lexical** — judges the domain string only; does not inspect page content, TLS certificates, or domain age (a deliberate trade for speed + privacy).
+- **Finite brand list** — the protected brand list (45, India-focused: banks, UPI apps, government portals) is curated, not exhaustive. (The confusables map and TLD parsing use the full Unicode UTS #39 table and the Public Suffix List respectively.)
+- **Mostly lexical** — the verdict comes from the domain string; the v0.3.0 page checks (login fields, fake windows, link text) are heuristics. No TLS-certificate, domain-age or blocklist lookups (a deliberate trade for privacy: nothing leaves the device).
+- **Security assessment** — see [`REDTEAM.md`](REDTEAM.md): a red-team pass on v0.2.0 found 16 issues (fuzzer bypass 52.6 % → 9.2 %) and lists the accepted residual risks.
 - **Block page is dismissible** — "Continue anyway" lets a determined user proceed (by design).
 - **Stats may slightly over-count** on pages that fire multiple navigation events.
 - **Local-file scanning** requires enabling "Allow access to file URLs" for the extension.
@@ -132,7 +133,7 @@ npm run dev              # web demo (dev sandbox)
 
 ## 9. Future Roadmap
 
-- **Indic-script homoglyphs** (Kannada / Devanagari look-alikes).
+- **Indic-on-Indic spoofing** — only 24 Indic glyphs fold to Latin in UTS #39, so the real gap is Indic-script domains (`.भारत`) imitating each other; import the ICANN Devanagari/Kannada variant sets.
 - **Hybrid pipeline** — use the fast string engine as a pre-filter ahead of an optional ML stage. *(Prototyped on the `phase-c-ml` branch: an explainable, dependency-free logistic-regression head over the engine's features — see [`ML.md`](ML.md).)*
 - **Registrar-side screening** — flag abusive registrations at creation time.
 - **Chrome Web Store publication** of the extension.

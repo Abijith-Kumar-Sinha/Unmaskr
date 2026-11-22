@@ -6,6 +6,7 @@ import { registrableParts } from '../data/publicSuffix'
 import {
   BRANDS,
   SUSPICIOUS_TLDS,
+  COMMON_TLDS,
   LURE_WORDS,
   type Brand,
 } from '../data/brands'
@@ -42,14 +43,28 @@ export interface Verdict {
   ops: number
 }
 
-// Common two-level public suffixes, so a brand on a ccTLD (amazon.co.jp,
+// Real Unicode Script property (not code-point ranges), so legitimate Latin
+// letters outside ASCII — 'ø', 'ł', 'ß', 'æ' — count as Latin. The old range
+// check called them 'Unicode', which made københavn.dk / straße.de look
+// mixed-script and raised false homoglyph warnings (red-team finding RT-07).
+// Han/Hiragana/Katakana/Hangul share one 'CJK' group: Japanese and Korean
+// names legitimately mix them.
+const SCRIPTS: [string, RegExp][] = [
+  ['Latin', /\p{Script=Latin}/u], ['Cyrillic', /\p{Script=Cyrillic}/u], ['Greek', /\p{Script=Greek}/u],
+  ['Armenian', /\p{Script=Armenian}/u], ['Hebrew', /\p{Script=Hebrew}/u], ['Arabic', /\p{Script=Arabic}/u],
+  ['Devanagari', /\p{Script=Devanagari}/u], ['Bengali', /\p{Script=Bengali}/u], ['Gurmukhi', /\p{Script=Gurmukhi}/u],
+  ['Gujarati', /\p{Script=Gujarati}/u], ['Oriya', /\p{Script=Oriya}/u], ['Tamil', /\p{Script=Tamil}/u],
+  ['Telugu', /\p{Script=Telugu}/u], ['Kannada', /\p{Script=Kannada}/u], ['Malayalam', /\p{Script=Malayalam}/u],
+  ['Thai', /\p{Script=Thai}/u], ['Georgian', /\p{Script=Georgian}/u], ['Cherokee', /\p{Script=Cherokee}/u],
+  ['CJK', /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u],
+]
+
 export function scriptOf(ch: string): string {
   const c = ch.codePointAt(0) ?? 0
-  if (c >= 0x0400 && c <= 0x04ff) return 'Cyrillic'
-  if (c >= 0x0370 && c <= 0x03ff) return 'Greek'
-  if (c >= 0xff00 && c <= 0xffef) return 'Full-width'
-  if (c > 127) return 'Unicode'
-  return 'Latin'
+  if (c <= 127) return 'Latin'
+  if (c >= 0xff00 && c <= 0xffef) return 'Full-width' // full-width 'ａ' is Script=Latin, but a disguise
+  for (const [name, re] of SCRIPTS) if (re.test(ch)) return name
+  return 'Unicode'
 }
 
 // The set of letter-scripts present in a label (combining marks ignored, so an
@@ -70,34 +85,58 @@ const ASCII_ONLY = /^[\x00-\x7f]*$/
 export function parseHost(input: string) {
   let host = input.trim().toLowerCase()
   host = host.replace(/^[a-z][a-z0-9+.-]*:\/\//, '') // strip scheme
-  host = host.split('/')[0].split('?')[0].split('#')[0]
+  host = host.split(/[/?#]/)[0]
+  // Userinfo trick (RT-01): in https://paypal.com@evil.xyz everything before
+  // the last '@' is a throwaway username — the browser really goes to evil.xyz.
+  const at = host.lastIndexOf('@')
+  const userinfo = at >= 0 ? host.slice(0, at) : ''
+  host = host.slice(at + 1)
   host = host.replace(/:\d+$/, '') // strip port
+  // Browsers drop invisible code points from hostnames (UTS #46 'ignored'),
+  // so 'pay<ZWSP>pal.com' really is paypal.com — strip them the same way.
+  host = host.replace(/\p{Default_Ignorable_Code_Point}/gu, '')
   host = decodeHost(host) // xn--pypal-4ve.com -> the real Unicode domain
   const labels = host.split('.').filter(Boolean)
   // Split off the registrable label using the full Public Suffix List, so a
   // brand on any ccTLD (amazon.co.jp, google.com.ua) is read correctly.
   const { sld, suffix: tld, subdomains, registrable } = registrableParts(host)
   const lastLabel = labels[labels.length - 1] ?? ''
-  return { host, labels, tld, sld, subdomains, lastLabel, registrable }
+  return { host, labels, tld, sld, subdomains, lastLabel, registrable, userinfo }
+}
+
+const STRICT_COMBO = new Set(['Bank', 'Payments', 'Government', 'Finance', 'Insurance', 'Telecom', 'Logistics', 'Travel'])
+
+// TLDs where a global brand that `ownsName` plausibly holds its own name:
+// mainstream gTLDs + 2-letter ccTLDs. Before RT-03 *any* TLD outside the
+// suspicious list counted, so paypal.sbs / amazon.bond read as "official".
+function mainstreamTld(lastLabel: string): boolean {
+  return ASCII_ONLY.test(lastLabel) && !SUSPICIOUS_TLDS.has(lastLabel) &&
+    (COMMON_TLDS.has(lastLabel) || /^[a-z]{2}$/.test(lastLabel))
+}
+
+function isOfficial(b: Brand, registrable: string, sld: string, lastLabel: string): boolean {
+  // ownsName: a global brand holds its exact name on mainstream TLDs. Match the
+  // RAW label (not its skeleton) so a confusable look-alike is never official.
+  return registrable === b.domain || !!b.altDomains?.includes(registrable) ||
+    (b.ownsName === true && sld === b.core && mainstreamTld(lastLabel))
+}
+
+/** The curated brand this host officially belongs to, or null. Used by the
+ *  page-level checks (link text, fake browser windows, brand-named logins). */
+export function officialBrandOf(input: string): Brand | null {
+  const { registrable, sld, lastLabel } = parseHost(input)
+  return BRANDS.find((b) => isOfficial(b, registrable, sld, lastLabel)) ?? null
 }
 
 export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<string>): Verdict {
-  const allBrands = extraBrands.length ? [...BRANDS, ...extraBrands] : BRANDS
+  const { host, tld, sld, subdomains, lastLabel, registrable, userinfo } = parseHost(input)
+  // Learned ("your site") brands are lookalike *targets* only — never a pass
+  // for the domain itself. Otherwise 3 visits to a lookalike that slipped past
+  // the rules would make it permanently "official" (RT-09, trust poisoning).
+  const learned = extraBrands.filter((b) => b.domain !== registrable && !b.altDomains?.includes(registrable))
+  const allBrands = learned.length ? [...BRANDS, ...learned] : BRANDS
   const substrBrands = allBrands.filter((b) => b.core.length >= 4)
-
-  const { host, tld, sld, subdomains, lastLabel, registrable } = parseHost(input)
   const sldSkel = skeleton(sld)
-
-  // User-reported false positive: the user vouched for this domain, so trust it
-  // outright (even over a homoglyph signal — it's their call, on their device).
-  if (allow?.has(registrable)) {
-    return {
-      input, host, registrable, sld, tld, skeleton: skeleton(host),
-      level: 'safe', score: 0, brand: null, similarity: 1,
-      distance: 0, trace: [], homoglyphs: [], ops: 0,
-      signals: [{ label: 'Marked safe by you', detail: `You reported ${registrable} as legitimate, so Unmaskr won't flag it.`, weight: 0 }],
-    }
-  }
 
   // Confusable-character analysis (UTS #39). `mixedScript`: the label mixes
   // Latin with another script (Latin 'p' + Cyrillic 'а' in 'pаypal') — always a
@@ -107,7 +146,9 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   // the de-confused label actually lands on a brand — so a legitimate accented
   // IDN like 'münchen' (which imitates no brand) is left alone.
   const sldScripts = letterScriptsOf(sld)
-  const mixedScript = sldScripts.size > 1 && [...sldScripts].some((s) => s !== 'Latin')
+  // Latin + CJK is an allowed mix under UTS #39 "Highly Restrictive" (Japanese
+  // and Korean brand names do it); any other mix with Latin is a disguise.
+  const mixedScript = sldScripts.size > 1 && [...sldScripts].some((s) => s !== 'Latin' && s !== 'CJK')
   let confusableFold = false
   for (const ch of sld) {
     if (ch.charCodeAt(0) <= 127) continue
@@ -133,14 +174,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     }
   }
 
-  const officialByDomain = allBrands.find(
-    (b) =>
-      registrable === b.domain ||
-      b.altDomains?.includes(registrable) ||
-      // Global brand that owns its exact name on any non-throwaway TLD. Match the
-      // RAW label (not its skeleton) so a confusable look-alike is never official.
-      (b.ownsName === true && sld === b.core && !SUSPICIOUS_TLDS.has(lastLabel)),
-  )
+  const officialByDomain = allBrands.find((b) => isOfficial(b, registrable, sld, lastLabel))
   const exactCoreBrand = allBrands.find((b) => b.core === sld)
   const skelCoreBrand = allBrands.find((b) => b.core === sldSkel)
   const subMatches = findPatterns(sldSkel, substrBrands.map((b) => b.core))
@@ -161,13 +195,28 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   // embedded brand, or >=0.85 similar). This keeps legitimate accented / non-
   // Latin IDNs that imitate no brand off the list.
   const brandProximate = !!skelCoreBrand || subMatches.length > 0 || (nearest !== null && bestSim >= 0.85)
-  const homoglyphUsed = mixedScript || (confusableFold && brandProximate)
+  // Homoglyph in the TLD itself (paypal.cоm, Cyrillic 'о') — RT-04.
+  const tldSkel = skeleton(lastLabel)
+  const tldDisguised = !ASCII_ONLY.test(lastLabel) && ASCII_ONLY.test(tldSkel) && tldSkel !== lastLabel
+  const homoglyphUsed = mixedScript || (confusableFold && brandProximate) || tldDisguised
   const homoglyphs: Homoglyph[] = []
   if (homoglyphUsed) {
-    for (const ch of sld) {
+    for (const ch of sld + (tldDisguised ? lastLabel : '')) {
       if (ch.charCodeAt(0) <= 127) continue
       const canon = skeleton(ch)
       if (canon !== ch && ASCII_ONLY.test(canon)) homoglyphs.push({ orig: ch, canon, script: scriptOf(ch) })
+    }
+  }
+
+  // User-reported false positive: trust it — unless the domain is disguised
+  // with look-alike characters. A homoglyph spoof can't be allowlisted, so one
+  // mis-click on "Report as safe" can't whitelist pаypal.com forever (RT-08).
+  if (allow?.has(registrable) && !homoglyphUsed) {
+    return {
+      input, host, registrable, sld, tld, skeleton: skeleton(host),
+      level: 'safe', score: 0, brand: null, similarity: 1,
+      distance: 0, trace: [], homoglyphs: [], ops,
+      signals: [{ label: 'Marked safe by you', detail: `You reported ${registrable} as legitimate, so Unmaskr won't flag it.`, weight: 0 }],
     }
   }
 
@@ -179,7 +228,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   }
 
   // ── Legitimate official domain (and not disguised) → safe ──
-  if (officialByDomain && !homoglyphUsed) {
+  if (officialByDomain && !homoglyphUsed && !userinfo) {
     return {
       input, host, registrable, sld, tld, skeleton: skeleton(host),
       level: 'safe', score: 2, brand: officialByDomain, similarity: 1,
@@ -196,7 +245,26 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     add('Homoglyph characters', `Disguised look-alike characters: ${list}.`, 0.45)
   }
 
-  if (skelCoreBrand && !exactCoreBrand) {
+  // A brand's real address used as bait in front of the real one: in the URL's
+  // username (paypal.com@evil.xyz, RT-01) or as a sub-domain prefix
+  // (paypal.com.evil.xyz / paypal.com-secure.net, RT-02). No legitimate use.
+  const hostSkel = skeleton(host)
+  const userSkel = skeleton(userinfo)
+  const decoy = allBrands.find((b) =>
+    (userinfo && (userSkel.includes(b.domain) || (b.core.length >= 4 && userSkel.includes(b.core)))) ||
+    (!officialByDomain && (hostSkel.startsWith(b.domain + '.') || hostSkel.startsWith(b.domain + '-') ||
+      hostSkel.includes('.' + b.domain + '.') || hostSkel.includes('.' + b.domain + '-'))))
+  if (decoy) {
+    impersonated = decoy
+    add(userinfo ? 'Fake address before an @' : 'Real address used as a decoy',
+      userinfo
+        ? `The link starts with '${userinfo}', but everything before '@' is ignored — it really goes to ${registrable}.`
+        : `'${decoy.domain}' is glued onto the front of ${registrable} to make it look official.`, 0.65)
+  }
+
+  if (impersonated) {
+    // decoy already pinned the brand; the lexical checks below are not needed
+  } else if (skelCoreBrand && !exactCoreBrand) {
     impersonated = skelCoreBrand
     add('Skeleton matches a brand', `'${sld}' normalises to '${skelCoreBrand.core}' — a disguised copy of ${skelCoreBrand.name}.`, 0.4)
   } else if (exactCoreBrand && !officialByDomain) {
@@ -205,10 +273,14 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // different-TLD match when corroborated (throwaway TLD / lure / homoglyph) —
     // otherwise it is almost certainly the same company's other domain, not an
     // impersonation. Curated brands (e.g. banks) keep the strict behaviour.
-    const learned = exactCoreBrand.category === 'Your site'
-    if (!learned || tldSuspicious || lure.length > 0 || homoglyphUsed) {
+    const isLearned = exactCoreBrand.category === 'Your site'
+    if (!isLearned || tldSuspicious || lure.length > 0 || homoglyphUsed) {
       impersonated = exactCoreBrand
-      add('Brand name on a non-official domain', `Uses '${exactCoreBrand.core}' but the domain ${registrable} is not the official ${exactCoreBrand.domain}.`, tldSuspicious ? 0.5 : 0.32)
+      // Regional brands (banks, gov) never own their name on a throwaway TLD →
+      // block. Global brands sometimes register those defensively (google.tk
+      // is Google's), so they stay at warn level.
+      const w = tldSuspicious ? (exactCoreBrand.ownsName ? 0.5 : 0.55) : 0.32
+      add('Brand name on a non-official domain', `Uses '${exactCoreBrand.core}' but the domain ${registrable} is not the official ${exactCoreBrand.domain}.`, w)
     }
   } else if (subMatches.length) {
     const longest = subMatches.reduce((a, b) => (b.pattern.length > a.pattern.length ? b : a))
@@ -220,9 +292,17 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // (googlee, appple): that is a typosquat, not a product name, so flag it.
     const typoClose = b ? sldSkel.length - b.core.length <= 2 : false
     const corroborated = lure.length > 0 || tldSuspicious || homoglyphUsed || typoClose
-    if (b && sld !== b.core && corroborated) {
+    // Combosquat (RT-05): a money/government brand as a whole hyphen-separated
+    // word (hdfcbank-netbanking.com, paytm-upi.com) is a warning even with no
+    // lure — banks, payment apps and government portals don't hyphenate their
+    // name onto other words. Big tech/media/shopping brands do
+    // (apple-cloudkit.com, microsoft-int.com), so they still need corroboration.
+    // Warn-level only.
+    const asWord = b ? STRICT_COMBO.has(b.category) && tokens.includes(b.core) : false
+    if (b && sld !== b.core && (corroborated || asWord)) {
       impersonated = b
-      add('Brand hidden in a longer name', `'${b.core}' (${b.name}) is embedded inside '${sld}'.`, 0.4)
+      add(asWord && !corroborated ? 'Brand name combined with other words' : 'Brand hidden in a longer name',
+        `'${b.core}' (${b.name}) is embedded inside '${sld}', which is not the official ${b.domain}.`, corroborated ? 0.4 : 0.32)
     }
   } else if (tokenBrand && !officialByDomain && (lure.length > 0 || tldSuspicious)) {
     // Brand used as a standalone word beside a lure / on a throwaway TLD

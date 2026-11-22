@@ -50,6 +50,12 @@ tld-swap 28, subdomain 28.
 
 ## 3. Headline results
 
+> **v0.3.0 update (2026-11-22, after the red-team pass in [`REDTEAM.md`](REDTEAM.md)).**
+> With 45 brands (511 controlled positives) the same harness gives: warn path
+> **99.6 % recall / 93.6 % precision / F1 96.5 %**, Tranco warnings 35 / 50,000
+> (0.07 %), block path **0 false positives** (100 % precision). The table below is
+> the v0.2.0 (DAA-submission) result, kept for the record.
+
 **Combined confusion matrix** — 333 controlled positives + 50,000 Tranco negatives:
 
 | Detector | Recall | Precision | FPR | F1 | Accuracy |

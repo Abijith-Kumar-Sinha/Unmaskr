@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Unmaskr - Lookalike Domain Detector",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Warns you in real time when a website is a lookalike of a trusted brand - including invisible Unicode homoglyph disguises.",
   "permissions": ["storage"],
   "host_permissions": ["http://*/*", "https://*/*"],
@@ -27,7 +27,8 @@
       "matches": ["http://*/*", "https://*/*"],
       "js": ["content.js"],
       "run_at": "document_end",
-      "all_frames": false
+      "all_frames": false,
+      "match_origin_as_fallback": true
     }
   ]
 }

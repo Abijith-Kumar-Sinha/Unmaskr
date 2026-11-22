@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- RT-11 PoC: a hostile page fights Unmaskr's block screen. Open with
+     #unmaskr-test=p%D0%B0ypal.com (dev build) so the page is judged as a
+     Cyrillic-'а' PayPal spoof. After 1.5 s the page tries four ways to get rid
+     of the overlay; the overlay must still be on screen afterwards. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PayPal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="harness.js"></script>
+  <style id="attack-css"></style>
+</head>
+<body>
+  <h1>Log in to your PayPal account</h1>
+  <input type="password" placeholder="Password">
+  <script>
+    setTimeout(() => {
+      const host = document.getElementById('unmaskr-host')
+      const log = []
+      // 1. Hide it with page CSS.
+      document.getElementById('attack-css').textContent =
+        '#unmaskr-host,html>div{display:none!important;visibility:hidden!important;opacity:0!important}'
+      log.push('css')
+      // 2. Close its popover / strip its inline style.
+      try { host.hidePopover(); log.push('hidePopover') } catch (e) { log.push('hidePopover:' + e.name) }
+      host?.removeAttribute('style')
+      // 3. Delete it.
+      host?.remove()
+      log.push('remove')
+      // 4. Cover it with a higher element of our own.
+      const cover = document.createElement('div')
+      cover.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#fff'
+      cover.textContent = 'Nothing to see here'
+      document.documentElement.appendChild(cover)
+      log.push('cover')
+      window.__attackLog = log
+    }, 1500)
+  </script>
+</body>
+</html>

