@@ -53,7 +53,7 @@
 <body>
 <div class="wrap">
   <h1>🛡️ <span>Unmaskr</span> — Demo Hub</h1>
-  <p class="sub">Every demo in one place: the original DAA demo, the attacks the VAPT red-team found and fixed, and domains to try in the popup. Links open in a new tab, so this page stays put.</p>
+  <p class="sub">Every demo in one place: lookalike examples, the attacks the VAPT red-team found and fixed, and domains to try in the popup. Links open in a new tab, so this page stays put.</p>
 
   <div id="status" class="status"><span class="dot"></span><span id="statusText">Checking whether the Unmaskr extension is running…</span></div>
 
@@ -69,9 +69,8 @@
   </div>
 
   <!-- ───────────────────────────── 1. Original demo ───────────────────────────── -->
-  <h2>1 · The original demo (DAA project, v0.2.0 features — still works the same)</h2>
-  <a class="big" href="demo.html" target="_blank" rel="noopener">Open the original demo page ↗</a>
-  <p class="sub" style="margin-bottom:10px">Or jump straight to each of its six examples (each opens the demo page pretending to be that domain):</p>
+  <h2>1 · Lookalike examples</h2>
+  <p class="sub" style="margin-bottom:10px">Each opens the demo page pretending to be that domain:</p>
   <div class="chips">
     <a class="chip dang" target="_blank" rel="noopener" href="demo.html#unmaskr-test=hdfcbank-kyc.xyz">HDFC combosquat<small>hdfcbank-kyc.xyz · block screen</small></a>
     <a class="chip dang" target="_blank" rel="noopener" href="demo.html#unmaskr-test=p%D0%B0ypal.com">PayPal homoglyph<small>Cyrillic “а” · block screen</small></a>
@@ -80,7 +79,7 @@
     <a class="chip warn" target="_blank" rel="noopener" href="demo.html#unmaskr-test=paypa1.com">PayPal typo<small>paypa1.com · warning bar</small></a>
     <a class="chip warn" target="_blank" rel="noopener" href="demo.html#unmaskr-test=rnicrosoft.com">“rn” → “m” trick<small>rnicrosoft.com · warning bar</small></a>
   </div>
-  <p class="note">The original page also has the fake phishing inbox (inline link flags) and the popup tips. Use “Back to safety” / “Dismiss” to leave a block screen or bar.</p>
+  <p class="note">Use “Back to safety” / “Dismiss” to leave a block screen or bar.</p>
 
   <!-- ───────────────────────────── 2. Red-team fixes ───────────────────────────── -->
   <h2>2 · What the VAPT red-team found and fixed (v0.3.0)</h2>
@@ -127,27 +126,6 @@
     <div class="exp">The real one → <b class="good">Looks safe, “Official domain”</b>. Switch the popup to <b>ML</b> to show the explainable signal bars.</div>
   </div>
 
-  <!-- ───────────────────────────── 4. What changed ───────────────────────────── -->
-  <h2>4 · What changed from v0.2.0 to v0.3.0</h2>
-  <div class="nums">
-    <div class="num"><b><span class="bad">52.6%</span> → <span class="good">9.2%</span></b><span>of 1,000+ generated attack domains get past the detector</span></div>
-    <div class="num"><b><span class="bad">1 / 9</span> → <span class="good">9 / 9</span></b><span>page-level attacks caught on the test pages</span></div>
-    <div class="num"><b><span class="bad">33%</span> → <span class="good">0%</span></b><span>false alarms on legit foreign-language domains</span></div>
-    <div class="num"><b>0 → 0</b><span>wrongful blocks on the top 50,000 real websites</span></div>
-    <div class="num"><b>92.5% → 93.6%</b><span>precision (warnings that were real attacks)</span></div>
-    <div class="num"><b>30 → 45</b><span>protected brands (Income Tax, Aadhaar, DigiLocker, e-Challan, LIC, more banks…)</span></div>
-  </div>
-  <div class="card" style="margin-top:12px">
-    <ul class="changes">
-      <li><b>Method — attacked my own extension:</b> a fuzzer generates ~1,600 attack domains across 9 trick families, plus proof-of-concept attack pages; every fix is re-attacked (21 findings, RT-01…RT-21).</li>
-      <li><b>Detection fixes:</b> brand names on cheap new TLDs and homoglyphs inside the TLD are no longer “official”; the “@” username and decoy sub-domain tricks are blocked; bank/payment/government combos like <code>hdfcbank-netbanking.com</code> warn; India lure words added (netbanking, KYC, Aadhaar, e-challan, parcel…).</li>
-      <li><b>New page-level protection:</b> fake login pages that name a bank they aren't, fake “sign in with Google” windows, link text that lies about where it goes, hidden <code>data:</code>/<code>blob:</code> login pages, OAuth consent screens sending your account to a lookalike, and a suspicious site + password box now escalates to a block.</li>
-      <li><b>Trust &amp; tamper fixes:</b> the block screen can no longer be hidden by a hostile page; a disguised domain can't be marked safe; visiting a lookalike 3 times no longer makes it “trusted”; the toolbar badge now agrees with your safe list.</li>
-      <li><b>Fewer false alarms:</b> legit domains like <code>straße.de</code> and <code>københavn.dk</code> are no longer flagged.</li>
-      <li><b>Security review of the fixes themselves</b> found 4 more issues in the new code (a backslash URL trick, over-trusting obscure country domains, a self-reloading page switching checks off, a broken “%” slipping past) — all fixed and tested.</li>
-    </ul>
-    <p class="note">Full report with severities, before/after evidence and accepted residual risks: <a href="REDTEAM.md" target="_blank" rel="noopener">REDTEAM.md</a>. All checks run on the device — nothing is sent anywhere.</p>
-  </div>
 </div>
 
 <script>
