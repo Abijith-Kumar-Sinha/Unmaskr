@@ -175,6 +175,38 @@ export function officialBrandOf(input: string): Brand | null {
   return BRANDS.find((b) => isOfficial(b, registrable, sld, lastLabel, true)) ?? null
 }
 
+/** On an OAuth sign-in / consent page, the address the app will send you (and
+ *  the authorization code) to: the `redirect_uri` parameter, also looked up
+ *  inside nested `continue`-style URLs (Google wraps it). Null elsewhere.
+ *  Consent phishing runs on the REAL Google/Microsoft page, so the page's own
+ *  domain looks fine — the redirect target is the part worth checking. */
+export function oauthRedirectTarget(href: string, depth = 0): string | null {
+  let u: URL
+  try {
+    u = new URL(href)
+  } catch {
+    return null
+  }
+  if (depth === 0 && !/oauth|authori[sz]e|consent/i.test(u.pathname)) return null
+  const r = u.searchParams.get('redirect_uri')
+  if (r) {
+    try {
+      const t = new URL(r)
+      return t.protocol === 'http:' || t.protocol === 'https:' ? t.href : null
+    } catch {
+      return null
+    }
+  }
+  if (depth < 2) {
+    for (const k of ['continue', 'return_to', 'next']) {
+      const c = u.searchParams.get(k)
+      const t = c ? oauthRedirectTarget(c, depth + 1) : null
+      if (t) return t
+    }
+  }
+  return null
+}
+
 export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<string>): Verdict {
   const { host, tld, sld, subdomains, lastLabel, registrable, userinfo } = parseHost(input)
   // Learned ("your site") brands are lookalike *targets* only — never a pass

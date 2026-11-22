@@ -123,7 +123,7 @@ npm run dev              # web demo (dev sandbox)
 
 - **Finite brand list** — the protected brand list (45, India-focused: banks, UPI apps, government portals) is curated, not exhaustive. (The confusables map and TLD parsing use the full Unicode UTS #39 table and the Public Suffix List respectively.)
 - **Mostly lexical** — the verdict comes from the domain string; the v0.3.0 page checks (login fields, fake windows, link text) are heuristics. No TLS-certificate, domain-age or blocklist lookups (a deliberate trade for privacy: nothing leaves the device).
-- **Security assessment** — see [`REDTEAM.md`](REDTEAM.md): a red-team pass on v0.2.0 found 20 issues (fuzzer bypass 52.6 % → 9.2 %) and lists the accepted residual risks.
+- **Security assessment** — see [`REDTEAM.md`](REDTEAM.md): a red-team pass on v0.2.0 found 21 issues (fuzzer bypass 52.6 % → 9.2 %) and lists the accepted residual risks.
 - **Block page is dismissible** — "Continue anyway" lets a determined user proceed (by design).
 - **Stats may slightly over-count** on pages that fire multiple navigation events.
 - **Local-file scanning** requires enabling "Allow access to file URLs" for the extension.

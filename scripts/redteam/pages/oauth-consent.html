@@ -1,0 +1,27 @@
+<!doctype html>
+<!-- RT-21 PoC: OAuth consent phishing. The real attack runs on the genuine
+     accounts.google.com consent screen, so the page's own domain is fine; the
+     danger is where the app sends your authorization code (redirect_uri).
+     Open with  ?harness&redirect_uri=https://paypal.com.account-check.xyz/cb
+     (a lookalike target → warning) or  ?harness&redirect_uri=https://app.example.com/cb
+     (an ordinary app → no warning). The path contains "oauth" like real IdP URLs. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sign in - Google Accounts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="harness.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 80px 16px; background: #f8f9fa; }
+    .card { max-width: 420px; margin: auto; background: #fff; border: 1px solid #dadce0; border-radius: 8px; padding: 32px; }
+    button { background: #1a73e8; color: #fff; border: 0; padding: 10px 22px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>"PayPal Security Center" wants to access your Google Account</h2>
+    <p>This will allow it to read, compose, send and permanently delete all your email.</p>
+    <button>Allow</button>
+  </div>
+</body>
+</html>

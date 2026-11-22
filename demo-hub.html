@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unmaskr — Demo Hub</title>
+<style>
+  :root{--bg:#0e1018;--card:#161925;--bd:#242838;--tx:#e7e9f3;--mut:#868ca0;--cyan:#4cc2f0;--red:#f43f5e;--amber:#f59e0b;--green:#34d399;--indigo:#6d6af0;}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);margin:0;padding:36px 16px 60px;}
+  .wrap{max-width:860px;margin:0 auto;}
+  h1{font-size:26px;margin:0 0 4px;} h1 span{color:var(--cyan);}
+  .sub{color:var(--mut);margin:0 0 18px;font-size:14px;line-height:1.55;}
+  h2{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:34px 0 12px;}
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;}
+  .status{display:inline-flex;align-items:center;gap:8px;font-size:13px;padding:7px 12px;border-radius:999px;border:1px solid var(--bd);background:var(--card);margin-bottom:16px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--mut);}
+  .status.ok .dot{background:var(--green);box-shadow:0 0 8px var(--green);} .status.no .dot{background:var(--red);}
+  .setup{font-size:13px;line-height:1.6;}
+  .setup ol{margin:6px 0 0;padding-left:20px;}
+  code,kbd{background:#0f111b;border:1px solid var(--bd);border-radius:5px;padding:1px 6px;font-family:ui-monospace,"Cascadia Code",monospace;font-size:12px;}
+  a{color:#6ea8fe;text-decoration:none;} a:hover{text-decoration:underline;}
+  .big{display:inline-block;font-weight:700;font-size:14px;background:var(--indigo);color:#fff;border-radius:10px;padding:10px 16px;margin:4px 0 12px;}
+  .big:hover{text-decoration:none;filter:brightness(1.1);}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;}
+  .chip{display:flex;flex-direction:column;gap:2px;font-size:13px;font-weight:600;border:1px solid var(--bd);border-radius:10px;padding:9px 13px;background:var(--card);color:var(--tx);}
+  .chip:hover{border-color:#39405a;text-decoration:none;}
+  .chip small{font-weight:500;font-size:11px;}
+  .chip.dang{box-shadow:inset 3px 0 0 var(--red);} .chip.dang small{color:#f6a6b2;}
+  .chip.warn{box-shadow:inset 3px 0 0 var(--amber);} .chip.warn small{color:#f3c98a;}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:top;line-height:1.45;}
+  th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);font-weight:600;background:#12141e;}
+  tr:last-child td{border-bottom:0;}
+  td.id{color:var(--mut);font-family:ui-monospace,monospace;font-size:11px;white-space:nowrap;}
+  .bad{color:#f6a6b2;} .good{color:#8fe3bd;}
+  .open{font-weight:700;white-space:nowrap;}
+  .copyrow{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;font-size:13px;}
+  .copyrow code{font-size:13px;}
+  .copyrow button{font:inherit;font-size:12px;font-weight:600;background:#20243a;color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:5px 10px;cursor:pointer;}
+  .copyrow button:hover{border-color:#39405a;}
+  .copyrow .exp{grid-column:1 / -1;color:var(--mut);font-size:12px;margin:-4px 0 6px;}
+  .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;}
+  .num{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;}
+  .num b{display:block;font-size:20px;margin-bottom:2px;}
+  .num span{font-size:12px;color:var(--mut);}
+  ul.changes{margin:0;padding-left:20px;font-size:13.5px;line-height:1.65;}
+  ul.changes li{margin-bottom:4px;}
+  .note{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.5;}
+  @media (max-width:640px){ th:nth-child(3),td:nth-child(3){display:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛡️ <span>Unmaskr</span> — Demo Hub</h1>
+  <p class="sub">Every demo in one place: the original DAA demo, the attacks the VAPT red-team found and fixed, and domains to try in the popup. Links open in a new tab, so this page stays put.</p>
+
+  <div id="status" class="status"><span class="dot"></span><span id="statusText">Checking whether the Unmaskr extension is running…</span></div>
+
+  <div class="card setup">
+    <b>Before you start</b>
+    <ol>
+      <li>Chrome → <code>chrome://extensions</code> → turn on <b>Developer mode</b> → <b>Load unpacked</b> → pick
+        <code>D:\Claude does stuff\DAA\phishguard\extension-dist</code>. Pin Unmaskr so the badge shows.</li>
+      <li>Serve this folder:
+        <code>python -m http.server 8137 --bind 127.0.0.1 --directory "D:/Claude does stuff/DAA/phishguard"</code>
+        and open <code>http://127.0.0.1:8137/demo-hub.html</code>.</li>
+    </ol>
+  </div>
+
+  <!-- ───────────────────────────── 1. Original demo ───────────────────────────── -->
+  <h2>1 · The original demo (DAA project, v0.2.0 features — still works the same)</h2>
+  <a class="big" href="demo.html" target="_blank" rel="noopener">Open the original demo page ↗</a>
+  <p class="sub" style="margin-bottom:10px">Or jump straight to each of its six examples (each opens the demo page pretending to be that domain):</p>
+  <div class="chips">
+    <a class="chip dang" target="_blank" rel="noopener" href="demo.html#unmaskr-test=hdfcbank-kyc.xyz">HDFC combosquat<small>hdfcbank-kyc.xyz · block screen</small></a>
+    <a class="chip dang" target="_blank" rel="noopener" href="demo.html#unmaskr-test=p%D0%B0ypal.com">PayPal homoglyph<small>Cyrillic “а” · block screen</small></a>
+    <a class="chip dang" target="_blank" rel="noopener" href="demo.html#unmaskr-test=sbi-rewards.online">SBI brand + lure<small>sbi-rewards.online · block screen</small></a>
+    <a class="chip dang" target="_blank" rel="noopener" href="demo.html#unmaskr-test=secure-paypal.tk">Throwaway TLD<small>secure-paypal.tk · block screen</small></a>
+    <a class="chip warn" target="_blank" rel="noopener" href="demo.html#unmaskr-test=paypa1.com">PayPal typo<small>paypa1.com · warning bar</small></a>
+    <a class="chip warn" target="_blank" rel="noopener" href="demo.html#unmaskr-test=rnicrosoft.com">“rn” → “m” trick<small>rnicrosoft.com · warning bar</small></a>
+  </div>
+  <p class="note">The original page also has the fake phishing inbox (inline link flags) and the popup tips. Use “Back to safety” / “Dismiss” to leave a block screen or bar.</p>
+
+  <!-- ───────────────────────────── 2. Red-team fixes ───────────────────────────── -->
+  <h2>2 · What the VAPT red-team found and fixed (v0.3.0)</h2>
+  <p class="sub" style="margin-bottom:10px"><b>Domain tricks</b> — each opens the demo page pretending to be that domain.</p>
+  <table>
+    <thead><tr><th>Attack</th><th>Open</th><th>v0.2.0 (before)</th><th>v0.3.0 (now)</th><th>ID</th></tr></thead>
+    <tbody>
+      <tr><td>A brand's exact name on a cheap new TLD — <code>paypal.sbs</code></td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=paypal.sbs">Open ↗</a></td><td class="bad">Said <b>“Official domain”</b> — safe</td><td class="good">Warning bar</td><td class="id">RT-03</td></tr>
+      <tr><td>A bank's name on a cheap new TLD — <code>hdfcbank.sbs</code></td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=hdfcbank.sbs">Open ↗</a></td><td class="bad">Only a warning</td><td class="good">Block screen</td><td class="id">RT-03</td></tr>
+      <tr><td>Fake letter hidden in the <i>.com</i> — <code>paypal.cоm</code> (Cyrillic “о”)</td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=paypal.c%D0%BEm">Open ↗</a></td><td class="bad">Said <b>“Official domain”</b> — safe</td><td class="good">Block screen</td><td class="id">RT-04</td></tr>
+      <tr><td>Bank name + an ordinary word — <code>hdfcbank-netbanking.com</code></td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=hdfcbank-netbanking.com">Open ↗</a></td><td class="bad">Nothing — passed as safe</td><td class="good">Warning bar</td><td class="id">RT-05</td></tr>
+      <tr><td>The real address used as a decoy — <code>paypal.com.account-check.xyz</code></td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=paypal.com.account-check.xyz">Open ↗</a></td><td class="bad">Only a warning</td><td class="good">Block screen</td><td class="id">RT-02</td></tr>
+      <tr><td>Government-scheme scam (new brands) — <code>incometax-refund.in</code></td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=incometax-refund.in">Open ↗</a></td><td class="bad">Nothing — brand not protected</td><td class="good">Warning bar</td><td class="id">RT-06</td></tr>
+      <tr><td>A <i>legitimate</i> German domain — <code>straße.de</code></td><td class="open"><a target="_blank" rel="noopener" href="demo.html#unmaskr-test=stra%C3%9Fe.de">Open ↗</a></td><td class="bad">False alarm (warning)</td><td class="good">Nothing — correct</td><td class="id">RT-07</td></tr>
+    </tbody>
+  </table>
+
+  <p class="sub" style="margin:18px 0 10px"><b>Page tricks</b> — attacks a domain check can't see, each on its own test page.</p>
+  <table>
+    <thead><tr><th>Attack</th><th>Open</th><th>v0.2.0 (before)</th><th>v0.3.0 (now)</th><th>ID</th></tr></thead>
+    <tbody>
+      <tr><td>A hostile page tries to <b>hide / delete / cover</b> the block screen (after 1.5 s)</td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/tamper.html#unmaskr-test=p%D0%B0ypal.com">Open ↗</a></td><td class="bad">Block screen hidden</td><td class="good">Block screen stays on top</td><td class="id">RT-11</td></tr>
+      <tr><td>Phishing-email link tricks: text shows the bank but goes elsewhere, the “@” username trick, a hidden <code>data:</code> page, a decoy sub-domain, a bank combo</td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/links.html">Open ↗</a></td><td class="bad">1 of 5 flagged</td><td class="good">5 of 5 flagged, the 2 real links untouched</td><td class="id">RT-01/02/05/14/15</td></tr>
+      <tr><td>A fake HDFC login on an <i>unrelated</i> site (how most real phishing works)</td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/fake-login.html">Open ↗</a></td><td class="bad">Nothing</td><td class="good">Warning bar: “calls itself HDFC Bank and asks for your password…”</td><td class="id">RT-12</td></tr>
+      <tr><td>A suspicious site that also shows a password box — <code>paypal.bond</code></td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/fake-login.html#unmaskr-test=paypal.bond">Open ↗</a></td><td class="bad">Nothing (read as official)</td><td class="good">Block screen: “asking for your password right now”</td><td class="id">RT-16</td></tr>
+      <tr><td>Fake “Sign in with Google” window drawn inside the page — <b>click the button on the page</b></td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/bitb.html">Open ↗</a></td><td class="bad">Nothing</td><td class="good">Warning bar: “fake sign-in window”</td><td class="id">RT-13</td></tr>
+      <tr><td>Real Google consent screen, but the app sends your account to a lookalike</td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/oauth-consent.html?redirect_uri=https%3A%2F%2Fpaypal.com.account-check.xyz%2Fcb">Open ↗</a></td><td class="bad">Nothing</td><td class="good">Warning bar: “will send you… to a fake of PayPal”</td><td class="id">RT-21</td></tr>
+      <tr><td>Control: same consent screen sending to an ordinary app</td><td class="open"><a target="_blank" rel="noopener" href="scripts/redteam/pages/oauth-consent.html?redirect_uri=https%3A%2F%2Fapp.example.com%2Fcb">Open ↗</a></td><td>Nothing</td><td class="good">Nothing — correct</td><td class="id">control</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ───────────────────────────── 3. Popup checker ───────────────────────────── -->
+  <h2>3 · Try these in the popup's “Check any domain” box</h2>
+  <div class="card copyrow" id="copyrows">
+    <code>pаypal.com</code><button data-copy="pаypal.com">Copy</button>
+    <div class="exp">Cyrillic “а” → <b class="bad">Likely phishing, 85</b>. Notice there is no “Report as safe” button: a disguised domain can't be whitelisted by a mis-click (RT-08).</div>
+    <code>https://hdfcbank.com@secure-check.xyz/login</code><button data-copy="https://hdfcbank.com@secure-check.xyz/login">Copy</button>
+    <div class="exp">The “@” username trick → <b class="bad">Likely phishing, 92</b>: it really goes to secure-check.xyz (RT-01).</div>
+    <code>paytm-upi.com</code><button data-copy="paytm-upi.com">Copy</button>
+    <div class="exp">Payments brand + a word → <b style="color:#f3c98a">Suspicious, 55</b> (v0.2.0: safe).</div>
+    <code>paypal.ws</code><button data-copy="paypal.ws">Copy</button>
+    <div class="exp">Brand on an obscure country domain → safe, but labelled “Brand name on a country domain”, not “Official” (RT-18).</div>
+    <code>paypal.com</code><button data-copy="paypal.com">Copy</button>
+    <div class="exp">The real one → <b class="good">Looks safe, “Official domain”</b>. Switch the popup to <b>ML</b> to show the explainable signal bars.</div>
+  </div>
+
+  <!-- ───────────────────────────── 4. What changed ───────────────────────────── -->
+  <h2>4 · What changed from v0.2.0 to v0.3.0</h2>
+  <div class="nums">
+    <div class="num"><b><span class="bad">52.6%</span> → <span class="good">9.2%</span></b><span>of 1,000+ generated attack domains get past the detector</span></div>
+    <div class="num"><b><span class="bad">1 / 9</span> → <span class="good">9 / 9</span></b><span>page-level attacks caught on the test pages</span></div>
+    <div class="num"><b><span class="bad">33%</span> → <span class="good">0%</span></b><span>false alarms on legit foreign-language domains</span></div>
+    <div class="num"><b>0 → 0</b><span>wrongful blocks on the top 50,000 real websites</span></div>
+    <div class="num"><b>92.5% → 93.6%</b><span>precision (warnings that were real attacks)</span></div>
+    <div class="num"><b>30 → 45</b><span>protected brands (Income Tax, Aadhaar, DigiLocker, e-Challan, LIC, more banks…)</span></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <ul class="changes">
+      <li><b>Method — attacked my own extension:</b> a fuzzer generates ~1,600 attack domains across 9 trick families, plus proof-of-concept attack pages; every fix is re-attacked (21 findings, RT-01…RT-21).</li>
+      <li><b>Detection fixes:</b> brand names on cheap new TLDs and homoglyphs inside the TLD are no longer “official”; the “@” username and decoy sub-domain tricks are blocked; bank/payment/government combos like <code>hdfcbank-netbanking.com</code> warn; India lure words added (netbanking, KYC, Aadhaar, e-challan, parcel…).</li>
+      <li><b>New page-level protection:</b> fake login pages that name a bank they aren't, fake “sign in with Google” windows, link text that lies about where it goes, hidden <code>data:</code>/<code>blob:</code> login pages, OAuth consent screens sending your account to a lookalike, and a suspicious site + password box now escalates to a block.</li>
+      <li><b>Trust &amp; tamper fixes:</b> the block screen can no longer be hidden by a hostile page; a disguised domain can't be marked safe; visiting a lookalike 3 times no longer makes it “trusted”; the toolbar badge now agrees with your safe list.</li>
+      <li><b>Fewer false alarms:</b> legit domains like <code>straße.de</code> and <code>københavn.dk</code> are no longer flagged.</li>
+      <li><b>Security review of the fixes themselves</b> found 4 more issues in the new code (a backslash URL trick, over-trusting obscure country domains, a self-reloading page switching checks off, a broken “%” slipping past) — all fixed and tested.</li>
+    </ul>
+    <p class="note">Full report with severities, before/after evidence and accepted residual risks: <a href="REDTEAM.md" target="_blank" rel="noopener">REDTEAM.md</a>. All checks run on the device — nothing is sent anywhere.</p>
+  </div>
+</div>
+
+<script>
+  // The content script injects a style tag (#pg-link-style) when it scans links,
+  // so its presence tells us the extension is running on this page.
+  setTimeout(() => {
+    const on = !!document.getElementById('pg-link-style')
+    const s = document.getElementById('status')
+    s.classList.add(on ? 'ok' : 'no')
+    document.getElementById('statusText').textContent = on
+      ? 'Unmaskr is running on this page — you are ready.'
+      : 'Unmaskr is not running here — load extension-dist (step 1 below), then reload this page.'
+  }, 1200)
+
+  document.getElementById('copyrows').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-copy]')
+    if (!b) return
+    try {
+      await navigator.clipboard.writeText(b.dataset.copy)
+      b.textContent = 'Copied ✓'
+    } catch {
+      b.textContent = 'Select & copy'
+    }
+    setTimeout(() => (b.textContent = 'Copy'), 1500)
+  })
+</script>
+</body>
+</html>

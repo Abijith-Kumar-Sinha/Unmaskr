@@ -1,5 +1,5 @@
 /// <reference types="chrome" />
-import { analyze, officialBrandOf, parseHost, type Verdict } from '../algorithms/scoring'
+import { analyze, oauthRedirectTarget, officialBrandOf, parseHost, type Verdict } from '../algorithms/scoring'
 import { BRANDS, type Brand } from '../data/brands'
 import { getAllow, getTrustedBrands } from './storage'
 
@@ -286,6 +286,18 @@ function pageChecks() {
     document.getElementById('unmaskr-bar')?.remove()
     pageWarned = true
     return blockScreen(v, true)
+  }
+
+  // OAuth consent phishing: the page is the real Google/Microsoft one, so check
+  // where the app will send you and your account access (redirect_uri).
+  // Runs before the official-site skip below on purpose.
+  const target = oauthRedirectTarget(location.href)
+  if (target) {
+    const rv = analyze(target, TRUSTED, ALLOW)
+    if (rv.level !== 'safe') {
+      pageWarned = true
+      return topBar(`this sign-in will send you, and access to your account, to <b>${esc(rv.host)}</b>, which looks like a fake of <b>${esc(rv.brand?.name ?? 'a trusted site')}</b>. Don&#39;t approve it.`)
+    }
   }
 
   // Everything below is for pages whose domain itself looked fine. Skip only an

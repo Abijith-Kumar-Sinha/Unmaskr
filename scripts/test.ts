@@ -1,4 +1,4 @@
-import { analyze, officialBrandOf } from '../src/algorithms/scoring'
+import { analyze, officialBrandOf, oauthRedirectTarget } from '../src/algorithms/scoring'
 
 const cases = [
   'paypal.com', // legit
@@ -70,4 +70,13 @@ expect('https://hdfcbank.com%zz@secure-check.xyz/', 'dangerous', 'RT-20 malforme
 if (officialBrandOf('paypal.ws') !== null) throw new Error('RT-18: obscure ccTLD must not be trusted for page checks')
 if (officialBrandOf('www.amazon.de')?.name !== 'Amazon') throw new Error('RT-18: major ccTLD stays trusted')
 if (analyze('paypal.ws').signals[0].label === 'Official domain') throw new Error('RT-18: must not claim official on obscure ccTLD')
+// RT-21 OAuth consent: find redirect_uri on IdP pages, including Google's
+// nested continue= URL; ignore pages that aren't OAuth flows.
+const evilCb = 'https://paypal.com.account-check.xyz/cb'
+const gAuth = `https://accounts.google.com/o/oauth2/v2/auth?client_id=1&redirect_uri=${encodeURIComponent(evilCb)}&scope=mail`
+if (oauthRedirectTarget(gAuth) !== evilCb) throw new Error('RT-21: redirect_uri not found')
+const nested = `https://accounts.google.com/signin/oauth/consent?continue=${encodeURIComponent(gAuth)}`
+if (oauthRedirectTarget(nested) !== evilCb) throw new Error('RT-21: nested continue redirect_uri not found')
+if (oauthRedirectTarget('https://www.google.com/search?redirect_uri=https://x.y/') !== null) throw new Error('RT-21: non-OAuth page must be ignored')
+if (analyze(evilCb).level !== 'dangerous') throw new Error('RT-21: lookalike redirect target must be flagged')
 console.log('red-team regressions: all OK')
