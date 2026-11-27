@@ -1,6 +1,6 @@
 # Unmaskr — Real-Time Detection of Lookalike Phishing Domains
 
-A Manifest V3 Chrome extension that detects **lookalike phishing domains** — including invisible **Unicode homoglyph** disguises — in real time, using classic string algorithms (no machine learning). Built for the Design & Analysis of Algorithms course.
+A Manifest V3 Chrome extension that detects **lookalike phishing domains** — including invisible **Unicode homoglyph** disguises — in real time, using classic string algorithms, with an optional explainable ML mode. Built for the Design & Analysis of Algorithms course.
 
 ---
 
@@ -50,6 +50,7 @@ The engine is a 4-stage pipeline, implemented as pure framework-free TypeScript,
 | Similarity to brands | `editDistance.ts` | Weighted Damerau–Levenshtein edit distance (Dynamic Programming) |
 | Embedded-brand search | `horspool.ts` | Horspool's string matching |
 | Signal fusion | `scoring.ts` | Rule-based risk scoring + explanation |
+| Optional ML mode | `features.ts`, `mlScore.ts` | Explainable logistic regression over 20 engine features (popup Rules ⇄ ML toggle, see [`ML.md`](ML.md)) |
 
 **Extension layers**
 - `background.ts` — service worker: per-tab badge, protection stats, learns history.
@@ -67,12 +68,17 @@ unmaskr/
 │   ├── algorithms/
 │   │   ├── confusables.ts     # skeleton normalization + substitution costs
 │   │   ├── editDistance.ts    # weighted edit distance (DP) + trace
+│   │   ├── features.ts        # 20 engine features for the ML mode
+│   │   ├── mlScore.ts         # explainable logistic-regression scorer
+│   │   ├── ngram.ts           # character n-gram improbability
 │   │   ├── horspool.ts        # Horspool string matching (brand-in-domain)
 │   │   ├── punycode.ts        # RFC 3492 IDN decoder (xn-- -> Unicode)
 │   │   └── scoring.ts         # analyze(): the risk engine
 │   ├── data/
 │   │   ├── brands.ts          # protected brands (+ altDomains/ownsName), TLDs, lure words
 │   │   ├── confusablesMap.ts  # full UTS #39 confusables table (generated)
+│   │   ├── modelWeights.ts    # trained ML weights
+│   │   ├── ngram.ts           # n-gram table
 │   │   └── publicSuffix.ts    # Public Suffix List rules + registrable parser (generated)
 │   ├── ext/
 │   │   ├── background.ts      # service worker (badge, stats, learning)
@@ -131,10 +137,9 @@ npm run dev              # web demo (dev sandbox)
 
 ---
 
-## 9. Future Roadmap
+## 8. Future Roadmap
 
 - **Indic-on-Indic spoofing** — only 24 Indic glyphs fold to Latin in UTS #39, so the real gap is Indic-script domains (`.भारत`) imitating each other; import the ICANN Devanagari/Kannada variant sets.
-- **Hybrid pipeline** — use the fast string engine as a pre-filter ahead of an optional ML stage. *(Prototyped on the `phase-c-ml` branch: an explainable, dependency-free logistic-regression head over the engine's features — see [`ML.md`](ML.md).)*
 - **Registrar-side screening** — flag abusive registrations at creation time.
 - **Chrome Web Store publication** of the extension.
 - **Conference paper (IEEE format)** on the homoglyph-aware weighted edit-distance method and its evaluation.
@@ -149,4 +154,4 @@ permission justifications live in [`STORE_LISTING.md`](STORE_LISTING.md).
 
 ---
 
-Built by **Abijith Kumar Sinha** (1RV24CY003) · RV College of Engineering · DAA (CD343AI).
+Built by **Abijith Kumar Sinha** (1RV24CY004) · RV College of Engineering · DAA (CD343AI).
