@@ -1,7 +1,8 @@
 /// <reference types="chrome" />
-import { analyze, oauthRedirectTarget, officialBrandOf, parseHost, type Verdict } from '../algorithms/scoring'
+// The detection engine lives in the background service worker (one copy for the
+// whole browser); this script only asks it questions, so each tab stays light.
+import type { Verdict } from '../algorithms/scoring'
 import { BRANDS, type Brand } from '../data/brands'
-import { getAllow, getTrustedBrands } from './storage'
 
 // Build-time flag, replaced by esbuild `define`. `true` in dev/demo builds,
 // `false` in the published store build (`build:ext:store`) so the demo hook below
@@ -18,23 +19,34 @@ declare const __PG_DEMO__: boolean
 //  4. Any dangerous/suspicious LINK on the page, or a link whose text shows a
 //     brand's address but goes elsewhere -> flagged inline before you click.
 
-let TRUSTED: Brand[] = []
-let ALLOW = new Set<string>()
-const cache = new Map<string, Verdict>()
+const cache = new Map<string, unknown>()
 // Re-inject guard state for the block screen (see blockScreen).
 let blockGuard: MutationObserver | null = null
 let blockDismissed = false
 let pageVerdict: Verdict | null = null
 let pageWarned = false
 
-function check(host: string): Verdict {
-  let v = cache.get(host)
-  if (!v) {
-    v = analyze(host, TRUSTED, ALLOW)
-    cache.set(host, v)
+// ── Engine RPC (background.ts answers 'pg-engine') ──────────────────────
+type Op = 'analyze' | 'official' | 'oauth' | 'allowed'
+interface Req { op: Op; input: string }
+async function ask(reqs: Req[]): Promise<unknown[]> {
+  const key = (r: Req) => r.op + '|' + r.input
+  const missing = [...new Map(reqs.filter((r) => !cache.has(key(r))).map((r) => [key(r), r])).values()]
+  for (let i = 0; i < missing.length; i += 400) {
+    const batch = missing.slice(i, i + 400)
+    let res: unknown[] = []
+    try {
+      res = ((await chrome.runtime.sendMessage({ type: 'pg-engine', items: batch })) as unknown[] | undefined) ?? []
+    } catch {
+      /* worker restarting / extension reloaded: answer as unknown */
+    }
+    batch.forEach((r, j) => { if (j < res.length) cache.set(key(r), res[j]) })
   }
-  return v
+  return reqs.map((r) => cache.get(key(r)) ?? null)
 }
+const check = async (input: string) => ((await ask([{ op: 'analyze', input }]))[0] as Verdict | null)
+// The official brand (by name) a host belongs to, or null.
+const official = async (host: string) => ((await ask([{ op: 'official', input: host }]))[0] as string | null)
 
 // Escape every HTML metacharacter — used for ANY value interpolated into the
 // shadow-DOM innerHTML below, so a hostile hostname/skeleton can never inject markup.
@@ -256,13 +268,13 @@ function addressBarIn(box: Element, frame: Element): string | null {
   return null
 }
 
-function fakeBrowserWindow(): { shown: string; brand: Brand } | null {
-  const pageBrand = officialBrandOf(pageHost())
+async function fakeBrowserWindow(): Promise<{ shown: string; brand: string } | null> {
+  const pageBrand = await official(pageHost())
   for (const f of document.querySelectorAll('iframe')) {
     if (!f.getClientRects().length) continue
-    let frameBrand: Brand | null = null
+    let frameBrand: string | null = null
     try {
-      frameBrand = officialBrandOf(new URL(f.src, location.href).hostname)
+      frameBrand = await official(new URL(f.src, location.href).hostname)
     } catch {
       /* srcdoc / about:blank */
     }
@@ -271,14 +283,14 @@ function fakeBrowserWindow(): { shown: string; brand: Brand } | null {
       const pos = getComputedStyle(el).position
       if (pos !== 'fixed' && pos !== 'absolute') continue
       const shown = addressBarIn(el, f)
-      const b = shown ? officialBrandOf(shown) : null
+      const b = shown ? await official(shown) : null
       if (shown && b && b !== pageBrand && b !== frameBrand) return { shown, brand: b }
     }
   }
   return null
 }
 
-function pageChecks() {
+async function pageChecks() {
   if (pageWarned || document.getElementById('unmaskr-host')) return
   const v = pageVerdict
   const host = pageHost()
@@ -294,10 +306,10 @@ function pageChecks() {
   // OAuth consent phishing: the page is the real Google/Microsoft one, so check
   // where the app will send you and your account access (redirect_uri).
   // Runs before the official-site skip below on purpose.
-  const target = oauthRedirectTarget(location.href)
+  const target = (await ask([{ op: 'oauth', input: location.href }]))[0] as string | null
   if (target) {
-    const rv = analyze(target, TRUSTED, ALLOW)
-    if (rv.level !== 'safe') {
+    const rv = await check(target)
+    if (rv && rv.level !== 'safe') {
       pageWarned = true
       return topBar(`this sign-in will send you, and access to your account, to <b>${esc(rv.host)}</b>, which looks like a fake of <b>${esc(rv.brand?.name ?? 'a trusted site')}</b>. Don&#39;t approve it.`)
     }
@@ -307,8 +319,9 @@ function pageChecks() {
   // official brand site or one the user explicitly reported as safe — NOT a
   // "learned" site: visits are counted per page load, so a phishing page that
   // reloads itself would get learned and switch these checks off (trust poisoning).
-  const { registrable } = parseHost(host)
-  if (officialBrandOf(host) || ALLOW.has(registrable)) return
+  const [offi, allowed] = await ask([{ op: 'official', input: host }, { op: 'allowed', input: host }])
+  if (offi || allowed) return
+  const registrable = v?.registrable ?? host
 
   const warn = (html: string) => {
     pageWarned = true
@@ -330,9 +343,9 @@ function pageChecks() {
   }
 
   // A fake browser window (BitB).
-  const bitb = fakeBrowserWindow()
+  const bitb = await fakeBrowserWindow()
   if (bitb) {
-    return warn(`this page shows a <b>fake sign-in window</b> pretending to be <b>${esc(bitb.shown)}</b> (${esc(bitb.brand.name)}). A real sign-in opens in its own browser window with its own address bar.`)
+    return warn(`this page shows a <b>fake sign-in window</b> pretending to be <b>${esc(bitb.shown)}</b> (${esc(bitb.brand)}). A real sign-in opens in its own browser window with its own address bar.`)
   }
 
   // An embedded frame from a lookalike domain.
@@ -340,8 +353,8 @@ function pageChecks() {
     try {
       const u = new URL(f.src, location.href)
       if ((u.protocol !== 'http:' && u.protocol !== 'https:') || u.hostname === host) continue
-      const fv = check(u.hostname)
-      if (fv.level === 'dangerous') {
+      const fv = await check(u.hostname)
+      if (fv?.level === 'dangerous') {
         return warn(`this page embeds content from <b>${esc(fv.host)}</b>, a lookalike of ${esc(fv.brand?.name ?? 'a trusted site')}.`)
       }
     } catch {
@@ -406,12 +419,14 @@ function unwrapRedirect(u: URL): URL {
 // covered in warnings; a risky site still gets the warning bar if it is opened.
 const WEBMAIL = /^(mail\.google\.com|outlook\.(live|office|office365)\.com|mail\.yahoo\.com|mail\.proton\.me)$/
 
-function scanLinks() {
+async function scanLinks() {
   ensureLinkStyle()
   const here = pageHost()
   const badgeRisky = WEBMAIL.test(here)
   const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href]')
   let flagged = 0
+  // Pass 1: collect the new links; pass 2 (after one batched engine call) flags them.
+  const todo: { a: HTMLAnchorElement; u: URL; host: string; shown: string | null }[] = []
   anchors.forEach((a) => {
     if (a.dataset.pgSeen) return
     a.dataset.pgSeen = '1'
@@ -430,31 +445,41 @@ function scanLinks() {
       return
     }
     if (u.protocol !== 'http:' && u.protocol !== 'https:') return
-    const host = u.hostname
-
-    // Text shows a brand's address, but the link goes somewhere else.
     const shown = (a.textContent ?? '').trim().match(ADDRESS_TEXT)
+    todo.push({ a, u, host: u.hostname, shown: shown ? shown[1] : null })
+  })
+  if (!todo.length) return flagged
+
+  const reqs: Req[] = []
+  for (const t of todo) {
+    if (t.shown) reqs.push({ op: 'official', input: t.shown }, { op: 'official', input: t.host })
+    // The userinfo trick needs the full href (https://bank.com@evil.xyz).
+    if (t.host !== here) reqs.push({ op: 'analyze', input: t.u.username ? t.u.href : t.host })
+  }
+  await ask(reqs)
+  const got = (op: Op, input: string) => cache.get(op + '|' + input) ?? null
+
+  for (const { a, u, host, shown } of todo) {
+    // Text shows a brand's address, but the link goes somewhere else. (A link back
+    // to this same site cannot take you anywhere new — e.g. news sites labelling a
+    // story with its source domain.)
     if (shown) {
-      const shownBrand = officialBrandOf(shown[1])
-      // (A link back to this same site cannot take you anywhere new — e.g. news
-      // sites labelling a story with its source domain.)
-      if (shownBrand && host !== here && officialBrandOf(host) !== shownBrand) {
-        flagLink(a, true, '⚠ fake link', `Unmaskr: the link text shows ${shown[1]} (${shownBrand.name}), but it really goes to ${host}.`)
+      const shownBrand = got('official', shown) as string | null
+      if (shownBrand && host !== here && got('official', host) !== shownBrand) {
+        flagLink(a, true, '⚠ fake link', `Unmaskr: the link text shows ${shown} (${shownBrand}), but it really goes to ${host}.`)
         flagged++
-        return
+        continue
       }
     }
-
-    if (host === here) return // same-site links
-    // The userinfo trick needs the full href (https://bank.com@evil.xyz).
-    const v = u.username ? analyze(u.href, TRUSTED, ALLOW) : check(host)
-    if (v.level === 'safe') return
+    if (host === here) continue // same-site links
+    const v = got('analyze', u.username ? u.href : host) as Verdict | null
+    if (!v || v.level === 'safe') continue
     const danger = v.level === 'dangerous'
-    if (!danger && !badgeRisky) return
+    if (!danger && !badgeRisky) continue
     flagLink(a, danger, danger ? '⚠ fake' : '⚠ risky',
       `Unmaskr: ${v.host} ${danger ? 'looks like a fake of' : 'may imitate'} ${v.brand ? v.brand.name : 'a brand'} (risk ${v.score}/100)`)
     flagged++
-  })
+  }
   return flagged
 }
 
@@ -489,8 +514,6 @@ let observing = false
 async function run() {
   if (window.top !== window.self) return
   if (!(await isEnabled())) return // master switch: paused
-  TRUSTED = await getTrustedBrands()
-  ALLOW = new Set(await getAllow())
   cache.clear() // trusted/allow may have changed since the last run
 
   // Demo hook (#unmaskr-test=<host>) — compiled in for dev/demo builds only.
@@ -511,7 +534,7 @@ async function run() {
       }
     }
   }
-  pageVerdict = target ? check(target) : null
+  pageVerdict = target ? await check(target) : null
   const v = pageVerdict
 
   if (v?.level === 'dangerous') blockScreen(v)
@@ -522,15 +545,22 @@ async function run() {
   // Scan links and run page checks now and again as the page grows
   // (debounced — logins and fake windows often appear after a click). Attach
   // the observer only once, even if run() is re-invoked after re-enabling.
-  scanLinks()
-  pageChecks()
+  await scanLinks()
+  await pageChecks()
   if (!observing) {
     let t = 0
+    let busy = false
     const rescan = () => {
       clearTimeout(t)
-      t = window.setTimeout(() => {
-        scanLinks()
-        pageChecks()
+      t = window.setTimeout(async () => {
+        if (busy) return rescan() // one scan at a time; try again shortly
+        busy = true
+        try {
+          await scanLinks()
+          await pageChecks()
+        } finally {
+          busy = false
+        }
       }, 600)
     }
     // New nodes, or a hidden dialog/window being revealed. (Not every style

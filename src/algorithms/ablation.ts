@@ -11,6 +11,7 @@ export const ABLATE = {
   noDecoy: false, // no userinfo / brand-domain-as-subdomain signal
   noSecondary: false, // no suspicious-TLD or lure-word weight
   noGluedStrict: false, // regulated brand glued to a word (onlinehdfcbank.com) needs corroboration again
+  noPopularityGate: false, // name-similarity checks also run on top-100k sites
   shortCoreRule: false, // experiment: short names need a disguise-type edit or corroboration
   comboStrictOnly: false, // brand-as-a-word warns only for banks / payments / government (v0.3 rule)
 }

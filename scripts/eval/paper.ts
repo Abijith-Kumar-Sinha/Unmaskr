@@ -30,10 +30,10 @@ const lines = (f: string) => readFileSync(resolve(DATA, f), 'utf8').split(/\r?\n
 // ── Datasets ────────────────────────────────────────────────────────────────
 interface Item { d: string; fam: string; brand?: string }
 const tranco = lines('tranco-top.txt')
-// Held-out negatives: Tranco ranks 50,001–1,000,000, every 5th site starting at
-// offset 2. The tuning work only ever inspected the top 50,000 and the offset-0
+// Held-out negatives: Tranco ranks 100,001–1,000,000 (below the popularity gate's
+// top-100k), every 5th site starting at offset 2. The tuning work only ever inspected the top 50,000 and the offset-0
 // slice (longtail.ts), so these 190,000 sites were never looked at.
-const heldout = lines('raw/top-1m.csv').slice(50000).filter((_, i) => i % 5 === 2).map((r) => r.split(',')[1]).filter(Boolean)
+const heldout = lines('raw/top-1m.csv').slice(100000).filter((_, i) => i % 5 === 2).map((r) => r.split(',')[1]).filter(Boolean)
 const controlled: Item[] = generateLookalikes().map((s) => ({ d: s.domain, fam: s.family }))
 const official = new Set<string>()
 for (const b of BRANDS) { official.add(b.domain); for (const a of b.altDomains ?? []) official.add(a) }
@@ -249,7 +249,7 @@ md.push('', '## LR calibration (held-out 30 %)', '',
   ...bins.map((b, i) => { const c = platted.bins[i]; const f = (x: { n: number; meanP: number; frac: number }) => `${x.n} | ${x.n ? x.meanP.toFixed(3) : '-'} | ${x.n ? x.frac.toFixed(3) : '-'}`; return `| ${b.lo.toFixed(1)}–${b.hi.toFixed(1)} | ${f(b)} | ${f(c)} |` }),
   '', '## Latency (ms per verdict, Tranco sweep)', '', '| Detector | mean | p50 | p95 | p99 | max |', '|---|---|---|---|---|---|',
   ...Object.entries(latency).map(([k, l]) => `| ${k} | ${l.mean.toFixed(3)} | ${l.p50.toFixed(3)} | ${l.p95.toFixed(3)} | ${l.p99.toFixed(3)} | ${l.max.toFixed(2)} |`),
-  '', `## False alarms on held-out sites (Tranco ranks 50,001–1M, ${heldout.length} never inspected)`, '', ...Object.entries(results.heldoutFP).map(([k, v]) => `- ${k}: ${v.fp} (${(100 * v.fp / v.n).toFixed(3)} %)`),
+  '', `## False alarms on held-out sites (Tranco ranks 100,001–1M, below the popularity gate; ${heldout.length} never inspected)`, '', ...Object.entries(results.heldoutFP).map(([k, v]) => `- ${k}: ${v.fp} (${(100 * v.fp / v.n).toFixed(3)} %)`),
   '', '## Benign controls (IDNs, official + popular domains) flagged', '', ...Object.entries(results.benignControlFP).map(([k, v]) => `- ${k}: ${v} / ${benignCtl.length}`))
 writeFileSync(resolve(DATA, 'paper-results.md'), md.join('\n') + '\n')
 console.log(md.join('\n'))

@@ -1,5 +1,6 @@
 import { skeleton } from './confusables'
 import { ABLATE } from './ablation'
+import { isPopular } from './popular'
 import { weightedEditDistance, similarity, type EditOp } from './editDistance'
 import { findPatterns } from './horspool'
 import { decodeHost } from './punycode'
@@ -367,8 +368,14 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
         : `'${decoy.domain}' is glued onto the front of ${registrable} to make it look official.`, 0.65)
   }
 
+  // Popularity gate: a top-100k site's own name is not judged by name similarity
+  // (kodak.com, oneindia.com, paypay.ne.jp). Structural tricks still count:
+  // homoglyphs, the @ trick, decoy domains, brands in sub-domains, dot-splits.
+  const wellKnown = !ABLATE.noPopularityGate && !homoglyphUsed && !userinfo && isPopular(registrable)
   if (impersonated) {
     // decoy already pinned the brand; the lexical checks below are not needed
+  } else if (wellKnown) {
+    // name-similarity checks skipped for a well-known site
   } else if (skelCoreBrand && !exactCoreBrand) {
     impersonated = skelCoreBrand
     add('Skeleton matches a brand', `'${sld}' normalises to '${skelCoreBrand.core}' — a disguised copy of ${skelCoreBrand.name}.`, 0.4)
@@ -477,6 +484,9 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   if (homoglyphUsed && impersonated) { level = 'dangerous'; score = Math.max(score, 80) }
   else if (impersonationSignal && level === 'safe') level = 'suspicious'
 
+  if (!signals.length && wellKnown) {
+    signals.push({ label: 'Well-known site', detail: `${registrable} is one of the 100,000 most-visited sites, so its name is not treated as a lookalike.`, weight: 0 })
+  }
   if (!signals.length) {
     signals.push({ label: 'No brand impersonation detected', detail: 'The domain does not closely resemble any protected brand.', weight: 0 })
   }

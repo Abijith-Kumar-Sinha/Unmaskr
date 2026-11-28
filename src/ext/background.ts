@@ -1,5 +1,5 @@
 /// <reference types="chrome" />
-import { analyze, type Level } from '../algorithms/scoring'
+import { analyze, officialBrandOf, oauthRedirectTarget, parseHost, type Level } from '../algorithms/scoring'
 import { getTrustedBrands, recordVisit, bumpScanned, recordBlock, getEnabled, getAllow, ENABLED_KEY } from './storage'
 
 const BADGE: Record<Level, { text: string; color: string }> = {
@@ -123,4 +123,31 @@ chrome.storage.onChanged.addListener((changes, area) => {
       if (tab?.id != null) checkTab(tab.id, tab.url, false)
     })
     .catch(() => {})
+})
+
+// ── Engine RPC for content scripts ───────────────────────────────────────
+// The detection engine (confusables table, Public Suffix List, popularity
+// filter) is loaded once here instead of into every tab. Content scripts send a
+// batch of questions; only the extension's own scripts can reach this listener,
+// but every item is still validated and capped.
+let engineCtx: { trusted: Awaited<ReturnType<typeof getTrustedBrands>>; allow: Set<string> } | null = null
+chrome.storage.onChanged.addListener((_c, area) => { if (area === 'local') engineCtx = null })
+
+async function answer(op: unknown, input: unknown): Promise<unknown> {
+  if (typeof input !== 'string' || input.length > 2048) return null
+  engineCtx ??= { trusted: await getTrustedBrands(), allow: new Set(await getAllow()) }
+  switch (op) {
+    case 'analyze': return analyze(input, engineCtx.trusted, engineCtx.allow)
+    case 'official': return officialBrandOf(input)?.name ?? null
+    case 'oauth': return oauthRedirectTarget(input)
+    case 'allowed': return engineCtx.allow.has(parseHost(input).registrable)
+    default: return null
+  }
+}
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg?.type !== 'pg-engine' || sender.id !== chrome.runtime.id || !Array.isArray(msg.items)) return
+  const items = (msg.items as { op?: unknown; input?: unknown }[]).slice(0, 500)
+  Promise.all(items.map((it) => answer(it?.op, it?.input))).then(sendResponse, () => sendResponse([]))
+  return true // answer asynchronously
 })

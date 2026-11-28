@@ -58,7 +58,12 @@ expect('pаypal.com', 'dangerous', 'RT-08 allowlist must not clear a homoglyph',
 const poisoned = [{ name: 'x', core: 'hdfcbank-netbanking', domain: 'hdfcbank-netbanking.com', category: 'Your site' }]
 expect('hdfcbank-netbanking.com', 'flag', 'RT-09 learned site must not become official', poisoned)
 expect('github.com', 'safe', 'learned site itself stays safe', [{ name: 'github', core: 'github', domain: 'github.com', category: 'Your site' }])
-for (const d of ['google.com', 'paypal.co.uk', 'amazon.de', 'google.tk']) expect(d, d === 'google.tk' ? 'flag' : 'safe', 'official / defensive registration')
+for (const d of ['google.com', 'paypal.co.uk', 'amazon.de']) expect(d, 'safe', 'official / defensive registration')
+// Popularity gate: a top-100k site's own name is quiet (google.tk is Google's), but
+// structural tricks still fire on any site.
+expect('google.tk', 'safe', 'popular defensive registration')
+expect('paypal.bond', 'flag', 'unpopular brand-on-abused-TLD still flags')
+expect('paypal-signin.blogspot.com', 'flag', 'brand in a sub-domain of a popular host still flags')
 // Post-push security review (REDTEAM.md RT-17..RT-19).
 // Browsers read '\' as '/', so these go to evil.xyz — never "official HDFC".
 for (const x of [String.raw`https://evil.xyz\@hdfcbank.com/login`, String.raw`evil.xyz\@hdfcbank.com`]) {
