@@ -80,6 +80,10 @@ const nested = `https://accounts.google.com/signin/oauth/consent?continue=${enco
 if (oauthRedirectTarget(nested) !== evilCb) throw new Error('RT-21: nested continue redirect_uri not found')
 if (oauthRedirectTarget('https://www.google.com/search?redirect_uri=https://x.y/') !== null) throw new Error('RT-21: non-OAuth page must be ignored')
 if (analyze(evilCb).level !== 'dangerous') throw new Error('RT-21: lookalike redirect target must be flagged')
+// v0.4 false-alarm and recall fixes.
+for (const d of ['sbi.bank.in', 'hdfcbank.bank.in', 'icicibank.de', 'amazon.jobs']) expect(d, 'safe', 'verified registry / owned domain')
+for (const d of ['pay.pal.com', 'ko.tak.com', 'razo.rpay.com']) expect(d, 'flag', 'brand split by a dot')
+expect('pаypal.bank.in', 'dangerous', 'verified registry must not clear a homoglyph')
 // The ML path must not miss the userinfo trick either (paper eval found 0 %).
 if (predictML('https://hdfcbank.com@secure-check.xyz/login').level !== 'dangerous') throw new Error('ML: userinfo trick not blocked')
 if (predictML('paypal.com').level !== 'safe') throw new Error('ML: official domain flagged')

@@ -9,7 +9,7 @@
 //             red-team fuzzer (evasion families).   Negatives: Tranco top-50k.
 // Adds      : 95 % bootstrap CIs, per-family recall, one-at-a-time ablation,
 //             held-out LR calibration (Brier, ECE), latency percentiles.
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { execSync } from 'node:child_process'
 import { performance } from 'node:perf_hooks'
@@ -28,25 +28,45 @@ const DATA = resolve(ROOT, 'data-eval')
 const lines = (f: string) => readFileSync(resolve(DATA, f), 'utf8').split(/\r?\n/).filter(Boolean)
 
 // ── Datasets ────────────────────────────────────────────────────────────────
-interface Item { d: string; fam: string }
+interface Item { d: string; fam: string; brand?: string }
 const tranco = lines('tranco-top.txt')
+// Held-out negatives: Tranco ranks 50,001–1,000,000, every 5th site starting at
+// offset 2. The tuning work only ever inspected the top 50,000 and the offset-0
+// slice (longtail.ts), so these 190,000 sites were never looked at.
+const heldout = lines('raw/top-1m.csv').slice(50000).filter((_, i) => i % 5 === 2).map((r) => r.split(',')[1]).filter(Boolean)
 const controlled: Item[] = generateLookalikes().map((s) => ({ d: s.domain, fam: s.family }))
 const official = new Set<string>()
 for (const b of BRANDS) { official.add(b.domain); for (const a of b.altDomains ?? []) official.add(a) }
 const dnstwist: Item[] = []
+// The 44-brand harvest (scripts/eval/harvest.py) when present, else the original 8-brand one.
+const DNSTWIST = existsSync(resolve(DATA, 'dnstwist44/all.csv')) ? 'dnstwist44/all.csv' : 'dnstwist/all.csv'
+const trancoSet = new Set(tranco)
+let dnstwistInTranco = 0
 {
   const seen = new Set<string>()
-  for (const line of lines('dnstwist/all.csv')) {
+  for (const line of lines(DNSTWIST)) {
     if (line.startsWith('>>')) continue
     const p = line.split(','); if (p.length < 3) continue
     const fam = p[1].trim(), d = p[2].trim().toLowerCase()
     if (!d || fam === '*original' || fam === 'fuzzer' || official.has(d) || seen.has(d)) continue
-    seen.add(d); dnstwist.push({ d, fam })
+    if (!BRANDS.some((b) => b.domain === p[0].trim())) continue // harvested brand no longer protected
+    seen.add(d)
+    // A registered permutation that is itself a popular site (kotaku.com) is not a
+    // lookalike to warn about; keep the label sets disjoint.
+    if (trancoSet.has(d)) { dnstwistInTranco++; continue }
+    dnstwist.push({ d, fam, brand: p[0].trim() })
   }
 }
 const redteam: Item[] = attacks().filter((c) => !c.family.startsWith('control')).map((c) => ({ d: c.input, fam: c.family }))
 const benignCtl: Item[] = benign().map((c) => ({ d: c.input, fam: c.family }))
-const POS: Record<string, Item[]> = { controlled, dnstwist, redteam }
+// The first harvest covered these 8 brands; the LR head was trained on their
+// lookalikes and the rules were tuned while looking at them. The other brands are
+// unseen by both, so 'dnstwistNew' is the out-of-sample real-data result.
+const ORIG8 = new Set(['paypal.com', 'hdfcbank.com', 'icicibank.com', 'axisbank.com', 'kotak.com', 'paytm.com', 'phonepe.com', 'razorpay.com'])
+const dnstwistNew = dnstwist.filter((i) => !ORIG8.has(i.brand ?? ''))
+const POS: Record<string, Item[]> = DNSTWIST.startsWith('dnstwist44')
+  ? { controlled, dnstwist, dnstwistNew, redteam }
+  : { controlled, dnstwist, redteam }
 
 // ── Detectors ───────────────────────────────────────────────────────────────
 const cores = BRANDS.filter((b) => b.core.length >= 4).map((b) => b.core)
@@ -102,7 +122,7 @@ const withCI = (x: number, c: [number, number], dp = 1) => `${pct(x, dp)} [${pct
 console.log(`controlled ${controlled.length} | dnstwist ${dnstwist.length} | redteam ${redteam.length} | Tranco ${tranco.length}`)
 const preds: Record<string, Record<string, boolean[]>> = {}
 for (const [name, det] of Object.entries(DETECTORS)) {
-  preds[name] = { tranco: tranco.map(det), benign: benignCtl.map((i) => det(i.d)) }
+  preds[name] = { tranco: tranco.map(det), heldout: heldout.map(det), benign: benignCtl.map((i) => det(i.d)) }
   for (const [set, items] of Object.entries(POS)) preds[name][set] = items.map((i) => det(i.d))
   console.log('  scored', name)
 }
@@ -196,15 +216,16 @@ let commit = 'unknown'
 try { commit = execSync('git rev-parse --short HEAD', { cwd: ROOT }).toString().trim() + (execSync('git status --porcelain src', { cwd: ROOT }).toString().trim() ? '+dirty' : '') } catch { /* not a repo */ }
 const results = {
   generatedAt: new Date().toISOString(), commit, bootstrap: B,
-  datasets: { tranco: tranco.length, controlled: controlled.length, dnstwist: dnstwist.length, redteam: redteam.length, benignControls: benignCtl.length },
+  datasets: { tranco: tranco.length, controlled: controlled.length, dnstwist: dnstwist.length, dnstwistSource: DNSTWIST, dnstwistDroppedAsInTranco: dnstwistInTranco, redteam: redteam.length, benignControls: benignCtl.length },
   headToHead, perFamily, ablation, calibration, latency,
+  heldoutFP: Object.fromEntries(Object.keys(DETECTORS).map((n) => [n, { n: heldout.length, fp: preds[n].heldout.filter(Boolean).length }])),
   benignControlFP: Object.fromEntries(Object.keys(DETECTORS).map((n) => [n, preds[n].benign.filter(Boolean).length])),
 }
 writeFileSync(resolve(DATA, 'paper-results.json'), JSON.stringify(results, null, 2))
 
 // Markdown tables for the paper.
 const md: string[] = [`# Paper results — commit ${commit}, ${results.generatedAt.slice(0, 10)}`, '',
-  `Datasets: Tranco ${tranco.length} negatives; controlled ${controlled.length}; dnstwist ${dnstwist.length}; red-team ${redteam.length}. 95 % CIs from ${B} bootstrap resamples.`, '']
+  `Datasets: Tranco ${tranco.length} negatives; controlled ${controlled.length}; dnstwist ${dnstwist.length} (${DNSTWIST}, ${dnstwistInTranco} dropped as also in Tranco); red-team ${redteam.length}. 95 % CIs from ${B} bootstrap resamples.`, '']
 for (const set of Object.keys(POS)) {
   md.push(`## Head-to-head — ${set} positives vs Tranco`, '', '| Detector | Recall % | FPR % | FP | Precision % | F1 % |', '|---|---|---|---|---|---|')
   for (const name of Object.keys(DETECTORS)) {
@@ -228,6 +249,7 @@ md.push('', '## LR calibration (held-out 30 %)', '',
   ...bins.map((b, i) => { const c = platted.bins[i]; const f = (x: { n: number; meanP: number; frac: number }) => `${x.n} | ${x.n ? x.meanP.toFixed(3) : '-'} | ${x.n ? x.frac.toFixed(3) : '-'}`; return `| ${b.lo.toFixed(1)}–${b.hi.toFixed(1)} | ${f(b)} | ${f(c)} |` }),
   '', '## Latency (ms per verdict, Tranco sweep)', '', '| Detector | mean | p50 | p95 | p99 | max |', '|---|---|---|---|---|---|',
   ...Object.entries(latency).map(([k, l]) => `| ${k} | ${l.mean.toFixed(3)} | ${l.p50.toFixed(3)} | ${l.p95.toFixed(3)} | ${l.p99.toFixed(3)} | ${l.max.toFixed(2)} |`),
+  '', `## False alarms on held-out sites (Tranco ranks 50,001–1M, ${heldout.length} never inspected)`, '', ...Object.entries(results.heldoutFP).map(([k, v]) => `- ${k}: ${v.fp} (${(100 * v.fp / v.n).toFixed(3)} %)`),
   '', '## Benign controls (IDNs, official + popular domains) flagged', '', ...Object.entries(results.benignControlFP).map(([k, v]) => `- ${k}: ${v} / ${benignCtl.length}`))
 writeFileSync(resolve(DATA, 'paper-results.md'), md.join('\n') + '\n')
 console.log(md.join('\n'))

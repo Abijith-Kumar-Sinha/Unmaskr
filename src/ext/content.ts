@@ -86,6 +86,8 @@ function blockScreen(v: Verdict, askingForSecrets = false) {
   const secrets = askingForSecrets ? ' <b>It is asking for your password or OTP right now.</b>' : ''
   const host = document.createElement('div')
   host.id = 'unmaskr-host'
+  // Dev build only (stripped from the store build): lets the eval crawler read why.
+  if (__PG_DEMO__) host.dataset.reason = `block: ${v.host} ${v.signals.map((x) => x.label).join(' + ')}`
   const sh = host.attachShadow({ mode: 'closed' })
   sh.innerHTML = `
   <style>
@@ -184,6 +186,7 @@ function topBar(html: string) {
   chrome.runtime.sendMessage({ type: 'pg-warn' }).catch(() => {})
   const el = document.createElement('div')
   el.id = 'unmaskr-bar'
+  if (__PG_DEMO__) el.dataset.reason = 'bar: ' + html.replace(/<[^>]+>/g, '').replace(/&#39;/g, "'")
   const sh = el.attachShadow({ mode: 'closed' })
   sh.innerHTML = `
   <style>
@@ -374,9 +377,42 @@ function flagLink(a: HTMLAnchorElement, danger: boolean, label: string, title: s
 // Link text that is itself an address ("www.hdfcbank.com", "https://paypal.com/x").
 const ADDRESS_TEXT = /^(?:https?:\/\/)?((?:[a-z0-9-]+\.)+[a-z]{2,})(?:[/:?#]\S*)?$/i
 
+// Well-known redirect wrappers (webmail, social, safe-link scanners): judge the
+// address they forward to, not the wrapper.
+const REDIRECTORS: Record<string, string[]> = {
+  'www.google.com': ['q', 'url'], 'google.com': ['q', 'url'],
+  'l.facebook.com': ['u'], 'lm.facebook.com': ['u'], 'l.instagram.com': ['u'],
+  'www.youtube.com': ['q'], 'out.reddit.com': ['url'], 'slack-redir.net': ['url'],
+  'www.linkedin.com': ['url'], 'away.vk.com': ['to'],
+}
+function unwrapRedirect(u: URL): URL {
+  const keys = REDIRECTORS[u.hostname] ??
+    (u.hostname.endsWith('.safelinks.protection.outlook.com') ? ['url'] : null)
+  if (!keys) return u
+  // google.com/search?q=… is a search, not a redirect: only /url (and YouTube's /redirect) forward.
+  if (/(^|\.)google\.com$/.test(u.hostname) && u.pathname !== '/url') return u
+  if (u.hostname === 'www.youtube.com' && u.pathname !== '/redirect') return u
+  for (const k of keys) {
+    const t = u.searchParams.get(k)
+    if (t && /^https?:\/\//i.test(t)) {
+      try { return new URL(t) } catch { /* not a URL */ }
+    }
+  }
+  return u
+}
+
+// Webmail is where phishing links arrive, so 'risky' (not only 'fake') links get
+// a badge there. Elsewhere only clear fakes are badged, so ordinary pages are not
+// covered in warnings; a risky site still gets the warning bar if it is opened.
+const WEBMAIL = /^(mail\.google\.com|outlook\.(live|office|office365)\.com|mail\.yahoo\.com|mail\.proton\.me)$/
+
 function scanLinks() {
   ensureLinkStyle()
   const here = pageHost()
+  // On a brand's own site, links "imitating" that brand are its own other sites
+  // (icicibank.com links to icicibank.de, icicibank.onelink.me…): not flagged.
+  const pageBrand = officialBrandOf(here)
+  const badgeRisky = WEBMAIL.test(here)
   const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href]')
   let flagged = 0
   anchors.forEach((a) => {
@@ -384,7 +420,7 @@ function scanLinks() {
     a.dataset.pgSeen = '1'
     let u: URL
     try {
-      u = new URL(a.href, location.href)
+      u = unwrapRedirect(new URL(a.href, location.href))
     } catch {
       return
     }
@@ -403,7 +439,9 @@ function scanLinks() {
     const shown = (a.textContent ?? '').trim().match(ADDRESS_TEXT)
     if (shown) {
       const shownBrand = officialBrandOf(shown[1])
-      if (shownBrand && officialBrandOf(host) !== shownBrand) {
+      // (A link back to this same site cannot take you anywhere new — e.g. news
+      // sites labelling a story with its source domain.)
+      if (shownBrand && host !== here && officialBrandOf(host) !== shownBrand) {
         flagLink(a, true, '⚠ fake link', `Unmaskr: the link text shows ${shown[1]} (${shownBrand.name}), but it really goes to ${host}.`)
         flagged++
         return
@@ -412,9 +450,11 @@ function scanLinks() {
 
     if (host === here) return // same-site links
     // The userinfo trick needs the full href (https://bank.com@evil.xyz).
-    const v = u.username ? analyze(a.href, TRUSTED, ALLOW) : check(host)
+    const v = u.username ? analyze(u.href, TRUSTED, ALLOW) : check(host)
     if (v.level === 'safe') return
+    if (pageBrand && v.brand === pageBrand && !v.homoglyphs.length && !u.username) return
     const danger = v.level === 'dangerous'
+    if (!danger && !badgeRisky) return
     flagLink(a, danger, danger ? '⚠ fake' : '⚠ risky',
       `Unmaskr: ${v.host} ${danger ? 'looks like a fake of' : 'may imitate'} ${v.brand ? v.brand.name : 'a brand'} (risk ${v.score}/100)`)
     flagged++

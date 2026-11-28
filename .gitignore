@@ -34,3 +34,4 @@ scripts/gen-defense-guide.py
 *.njsproj
 *.sln
 *.sw?
+data-eval/dnstwist44/

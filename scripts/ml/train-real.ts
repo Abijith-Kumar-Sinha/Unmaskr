@@ -30,11 +30,16 @@ for (const b of BRANDS) { official.add(b.domain); for (const a of b.altDomains ?
 const rows: Row[] = []
 // real positives from dnstwist
 const seen = new Set<string>()
-for (const line of need('dnstwist/all.csv').split(/\r?\n/)) {
+// Train only on the first 8 harvested brands, so every other brand's lookalikes
+// stay unseen by the model (the out-of-sample test in scripts/eval/paper.ts).
+const ORIG8 = new Set(['paypal.com', 'hdfcbank.com', 'icicibank.com', 'axisbank.com', 'kotak.com', 'paytm.com', 'phonepe.com', 'razorpay.com'])
+const SRC = existsSync(resolve(DATA, 'dnstwist44/all.csv')) ? 'dnstwist44/all.csv' : 'dnstwist/all.csv'
+for (const line of need(SRC).split(/\r?\n/)) {
   if (!line || line.startsWith('>>')) continue
   const p = line.split(','); if (p.length < 3) continue
   const fuzzer = p[1].trim(), domain = p[2].trim().toLowerCase()
   if (!domain || fuzzer === '*original' || fuzzer === 'fuzzer' || official.has(domain) || seen.has(domain)) continue
+  if (!ORIG8.has(p[0].trim())) continue
   seen.add(domain); rows.push({ host: domain, y: 1, src: 'real', x: extractFeatures(domain).values })
 }
 const nReal = rows.length

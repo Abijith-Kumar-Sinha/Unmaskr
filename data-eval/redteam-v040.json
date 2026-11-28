@@ -1,0 +1,204 @@
+{
+  "label": "v040",
+  "ts": "2026-11-28T03:27:06.670Z",
+  "attacks": {
+    "rows": [
+      {
+        "family": "userinfo-trick",
+        "n": 76,
+        "safe": 0,
+        "suspicious": 0,
+        "dangerous": 76
+      },
+      {
+        "family": "domain-as-subdomain",
+        "n": 152,
+        "safe": 0,
+        "suspicious": 0,
+        "dangerous": 152
+      },
+      {
+        "family": "combosquat-com",
+        "n": 1064,
+        "safe": 36,
+        "suspicious": 1028,
+        "dangerous": 0
+      },
+      {
+        "family": "brand-on-abused-tld",
+        "n": 760,
+        "safe": 4,
+        "suspicious": 369,
+        "dangerous": 387
+      },
+      {
+        "family": "homoglyph-in-tld",
+        "n": 76,
+        "safe": 0,
+        "suspicious": 0,
+        "dangerous": 76
+      },
+      {
+        "family": "bitsquat",
+        "n": 456,
+        "safe": 49,
+        "suspicious": 407,
+        "dangerous": 0
+      },
+      {
+        "family": "indic-zero",
+        "n": 74,
+        "safe": 0,
+        "suspicious": 0,
+        "dangerous": 74
+      },
+      {
+        "family": "control-cyrillic",
+        "n": 70,
+        "safe": 0,
+        "suspicious": 0,
+        "dangerous": 70
+      },
+      {
+        "family": "control-typo",
+        "n": 76,
+        "safe": 8,
+        "suspicious": 68,
+        "dangerous": 0
+      }
+    ],
+    "misses": {
+      "bitsquat": [
+        "epay.com",
+        "cpay.com",
+        "opay.com",
+        "wpay.com",
+        "gqay.com",
+        "chim.com",
+        "fhim.com",
+        "jhim.com",
+        "rhim.com",
+        "biim.com",
+        "opci.com",
+        "lpci.com",
+        "jpci.com",
+        "fpci.com",
+        "nqci.com",
+        "nrci.com",
+        "cooking.com",
+        "fooking.com",
+        "jooking.com",
+        "rooking.com",
+        "bnoking.com",
+        "bmoking.com",
+        "uelegram.com",
+        "velegram.com",
+        "pelegram.com",
+        "delegram.com",
+        "4elegram.com",
+        "tdlegram.com",
+        "bhase.com",
+        "ahase.com",
+        "ghase.com",
+        "khase.com",
+        "shase.com",
+        "ciase.com",
+        "isbc.com",
+        "lsbc.com",
+        "xsbc.com",
+        "hrbc.com",
+        "hqbc.com",
+        "dxodus.com",
+        "gxodus.com",
+        "axodus.com",
+        "mxodus.com",
+        "uxodus.com",
+        "eyodus.com",
+        "cjio.com",
+        "ejio.com",
+        "ijio.com",
+        "qjio.com"
+      ],
+      "control-typo": [
+        "gpae.com",
+        "bhie.com",
+        "npce.com",
+        "bookine.com",
+        "telegrae.com",
+        "chasa.com",
+        "exodue.com",
+        "ajie.com"
+      ],
+      "combosquat-com": [
+        "booking-cards.com",
+        "booking-customer.com",
+        "booking-online.com",
+        "booking-india.com",
+        "booking-payments.com",
+        "booking-app.com",
+        "booking-portal.com",
+        "cards-booking.in",
+        "customer-booking.in",
+        "telegram-cards.com",
+        "telegram-customer.com",
+        "telegram-online.com",
+        "telegram-india.com",
+        "telegram-payments.com",
+        "telegram-app.com",
+        "telegram-portal.com",
+        "cards-telegram.in",
+        "customer-telegram.in",
+        "chase-cards.com",
+        "chase-customer.com",
+        "chase-online.com",
+        "chase-india.com",
+        "chase-payments.com",
+        "chase-app.com",
+        "chase-portal.com",
+        "cards-chase.in",
+        "customer-chase.in",
+        "exodus-cards.com",
+        "exodus-customer.com",
+        "exodus-online.com",
+        "exodus-india.com",
+        "exodus-payments.com",
+        "exodus-app.com",
+        "exodus-portal.com",
+        "cards-exodus.in",
+        "customer-exodus.in"
+      ],
+      "brand-on-abused-tld": [
+        "booking.ink",
+        "telegram.ink",
+        "chase.ink",
+        "exodus.ink"
+      ]
+    }
+  },
+  "benign": {
+    "rows": [
+      {
+        "family": "benign-idn",
+        "n": 12,
+        "safe": 12,
+        "suspicious": 0,
+        "dangerous": 0
+      },
+      {
+        "family": "benign-official",
+        "n": 190,
+        "safe": 190,
+        "suspicious": 0,
+        "dangerous": 0
+      },
+      {
+        "family": "benign-popular",
+        "n": 10,
+        "safe": 10,
+        "suspicious": 0,
+        "dangerous": 0
+      }
+    ],
+    "misses": {}
+  }
+}

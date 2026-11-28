@@ -1,0 +1,2165 @@
+{
+ "summary": {
+  "visited": 327,
+  "loaded": 216,
+  "pagesWithAnyWarning": 7,
+  "blocks": 0,
+  "bars": 0,
+  "flaggedLinks": 27,
+  "seconds": 561
+ },
+ "pages": [
+  {
+   "url": "https://gtld-servers.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://gstatic.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.gstatic.com/"
+  },
+  {
+   "url": "https://google.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.google.com/"
+  },
+  {
+   "url": "https://cloudflare.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.cloudflare.com/"
+  },
+  {
+   "url": "https://googleapis.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://googleapis.com/"
+  },
+  {
+   "url": "https://facebook.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.facebook.com/"
+  },
+  {
+   "url": "https://microsoft.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.microsoft.com/en-in"
+  },
+  {
+   "url": "https://amazonaws.com",
+   "error": "TimeoutError"
+  },
+  {
+   "url": "https://akamai.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://fbcdn.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.facebook.com/"
+  },
+  {
+   "url": "https://mail.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://mail.ru/"
+  },
+  {
+   "url": "https://ezviz7.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://instagram.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.instagram.com/"
+  },
+  {
+   "url": "https://apple.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.apple.com/"
+  },
+  {
+   "url": "https://youtube.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.youtube.com/"
+  },
+  {
+   "url": "https://googlevideo.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://twitter.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://googletagmanager.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://googletagmanager.com/"
+  },
+  {
+   "url": "https://akamaiedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://akadns.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://linkedin.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.linkedin.com/?__cf_chl_rt_tk=qcOKN2u.a0T.jM63B09UZdImT_zYRRd5LDhqUYciFKA-1795828896-1.0.1.1-cK20qgJ50m3Kd9vJu04QaLjkpaUZ3q.xTiYU3Pjyjm8"
+  },
+  {
+   "url": "https://office.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://m365.cloud.microsoft/"
+  },
+  {
+   "url": "https://wikipedia.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.wikipedia.org/"
+  },
+  {
+   "url": "https://amazon.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.amazon.com/"
+  },
+  {
+   "url": "https://hicloudcam.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://github.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://github.com/"
+  },
+  {
+   "url": "https://domaincontrol.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://doubleclick.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://marketingplatform.google.com/about/enterprise/"
+  },
+  {
+   "url": "https://live.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://outlook.live.com/mail/"
+  },
+  {
+   "url": "https://bing.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.bing.com/?toWww=1&redig=ED1284DA64884F959B72D37761EED49B"
+  },
+  {
+   "url": "https://googleusercontent.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://googleusercontent.com/"
+  },
+  {
+   "url": "https://whatsapp.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.whatsapp.com/"
+  },
+  {
+   "url": "https://apple-dns.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://microsoftonline.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://trafficmanager.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://appsflyersdk.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://appsflyersdk.com/"
+  },
+  {
+   "url": "https://aaplimg.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://office.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://netflix.com",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: netflix.shop may imitate Netflix (risk 62/100)",
+     "href": "https://netflix.shop/",
+     "text": "Netflix Shop"
+    }
+   ],
+   "final": "https://www.netflix.com/"
+  },
+  {
+   "url": "https://wordpress.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://wordpress.org/"
+  },
+  {
+   "url": "https://digicert.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.digicert.com/"
+  },
+  {
+   "url": "https://skype.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://teams.live.com/free"
+  },
+  {
+   "url": "https://youtu.be",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.youtube.com/"
+  },
+  {
+   "url": "https://ripn.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://fastly.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.fastly.com/"
+  },
+  {
+   "url": "https://azure.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://azure.microsoft.com/en-us"
+  },
+  {
+   "url": "https://cloudfront.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://sharepoint.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.microsoft.com/en-in/microsoft-365/sharepoint/collaboration?ms.officeurl=sharepoint"
+  },
+  {
+   "url": "https://whatsapp.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.whatsapp.com/"
+  },
+  {
+   "url": "https://pinterest.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.pinterest.com/"
+  },
+  {
+   "url": "https://x.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://dzen.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://dzen.ru/"
+  },
+  {
+   "url": "https://googlesyndication.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.google.com/"
+  },
+  {
+   "url": "https://cloud.microsoft",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://m365.cloud.microsoft/"
+  },
+  {
+   "url": "https://windowsupdate.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://yahoo.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.yahoo.com/"
+  },
+  {
+   "url": "https://gandi.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://icloud.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.icloud.com/"
+  },
+  {
+   "url": "https://msn.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.msn.com/en-in"
+  },
+  {
+   "url": "https://goo.gl",
+   "error": "Error"
+  },
+  {
+   "url": "https://gvt1.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://cloudflare.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://cloudflare.net/"
+  },
+  {
+   "url": "https://adobe.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.adobe.com/"
+  },
+  {
+   "url": "https://spotify.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://open.spotify.com/"
+  },
+  {
+   "url": "https://windows.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://googledomains.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://domains.google/"
+  },
+  {
+   "url": "https://wa.me",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://api.whatsapp.com/"
+  },
+  {
+   "url": "https://ntp.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.ntp.org/"
+  },
+  {
+   "url": "https://chatgpt.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://chatgpt.com/"
+  },
+  {
+   "url": "https://akam.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://vimeo.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://vimeo.com/watch-home?lohp=1"
+  },
+  {
+   "url": "https://tiktok.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://gvt2.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://pv-cdn.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://myfritz.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://sso.myfritz.net/"
+  },
+  {
+   "url": "https://zoom.us",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.zoom.com/"
+  },
+  {
+   "url": "https://yandex.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://ya.ru/"
+  },
+  {
+   "url": "https://roblox.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.roblox.com/"
+  },
+  {
+   "url": "https://edgekey.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://ytimg.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://tiktokcdn.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://cloudflare-dns.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://one.one.one.one/dns/"
+  },
+  {
+   "url": "https://tiktokv.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://workers.dev",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.cloudflare.com/products/workers/"
+  },
+  {
+   "url": "https://qq.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://cdninstagram.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://nginx.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://nginx.org/"
+  },
+  {
+   "url": "https://windows.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.microsoft.com/en-in/windows/?r=1"
+  },
+  {
+   "url": "https://mozilla.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.mozilla.org/en-US/"
+  },
+  {
+   "url": "https://nic.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.nic.ru/"
+  },
+  {
+   "url": "https://opera.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.opera.com/"
+  },
+  {
+   "url": "https://edgesuite.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://baidu.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://samsung.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.samsung.com/in/"
+  },
+  {
+   "url": "https://nginx.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.f5.com/products/nginx"
+  },
+  {
+   "url": "https://wordpress.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://wordpress.com/"
+  },
+  {
+   "url": "https://sentry.io",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://sentry.io/welcome/"
+  },
+  {
+   "url": "https://okcdn.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://st.okcdn.ru/"
+  },
+  {
+   "url": "https://yandex.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://dzen.ru/?yredirect=true"
+  },
+  {
+   "url": "https://reddit.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.reddit.com/?solution=448ae4368fc5df22448ae4368fc5df22&js_challenge=1&jsc_token=2824be10929bdc604753c70a67a1c3318d65184482d752fdf966be06cfdda2b7&jsc_orig_r="
+  },
+  {
+   "url": "https://google-analytics.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://marketingplatform.google.com/about/analytics/"
+  },
+  {
+   "url": "https://ui.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://ui.com/"
+  },
+  {
+   "url": "https://bit.ly",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://bitly.com/pages/home/cp/"
+  },
+  {
+   "url": "https://root-servers.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://a2z.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://discord.gg",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://discord.com/"
+  },
+  {
+   "url": "https://office365.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://office365.com/"
+  },
+  {
+   "url": "https://t.me",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://telegram.org/"
+  },
+  {
+   "url": "https://vk.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://gwfb.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://blogspot.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.blogger.com/about/?bpli=1"
+  },
+  {
+   "url": "https://criteo.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.criteo.com/"
+  },
+  {
+   "url": "https://vedcdnlb.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://trbcdn.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://europa.eu",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://european-union.europa.eu/index_en"
+  },
+  {
+   "url": "https://googleadservices.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://googleadservices.com/"
+  },
+  {
+   "url": "https://b-cdn.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://bunny.net/"
+  },
+  {
+   "url": "https://github.io",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://docs.github.com/en/pages"
+  },
+  {
+   "url": "https://epicgames.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.epicgames.com/"
+  },
+  {
+   "url": "https://unity3d.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://unity3d.com/"
+  },
+  {
+   "url": "https://snapchat.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.snapchat.com/"
+  },
+  {
+   "url": "https://app-measurement.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://app-measurement.com/"
+  },
+  {
+   "url": "https://apache.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://apache.org/"
+  },
+  {
+   "url": "https://telekom.de",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.telekom.de/start"
+  },
+  {
+   "url": "https://cdn77.org",
+   "error": "Error"
+  },
+  {
+   "url": "https://mailinabox.email",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://mailinabox.email/"
+  },
+  {
+   "url": "https://nih.gov",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.nih.gov/"
+  },
+  {
+   "url": "https://amazonvideo.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.primevideo.com/"
+  },
+  {
+   "url": "https://intuit.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://amazon.dev",
+   "error": "Error"
+  },
+  {
+   "url": "https://dns.google",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://dns.google/"
+  },
+  {
+   "url": "https://msftncsi.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://amazon-adsystem.com",
+   "error": "TimeoutError"
+  },
+  {
+   "url": "https://app-analytics-services.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://app-analytics-services.com/"
+  },
+  {
+   "url": "https://prodregistryv2.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://prodregistryv2.org/"
+  },
+  {
+   "url": "https://kaspersky.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.kaspersky.co.in/"
+  },
+  {
+   "url": "https://outlook.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.microsoft.com/en-us/microsoft-365/outlook/email-and-calendar-software-microsoft-outlook?deeplink=%2Fmail%2F&sdf=0&sessionId=03460bd4-ed6f-4f4a-9dec-151594971d9d"
+  },
+  {
+   "url": "https://registrar-servers.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://registrar-servers.com/"
+  },
+  {
+   "url": "https://iiko.it",
+   "error": "Error"
+  },
+  {
+   "url": "https://gravatar.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://gravatar.com/"
+  },
+  {
+   "url": "https://vkuserphoto.ru",
+   "error": "Error"
+  },
+  {
+   "url": "https://yccdn.ru",
+   "error": "Error"
+  },
+  {
+   "url": "https://forms.gle",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://forms.gle/"
+  },
+  {
+   "url": "https://dnsowl.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://dropbox.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.dropbox.com/"
+  },
+  {
+   "url": "https://steamserver.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://godaddy.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.godaddy.com/"
+  },
+  {
+   "url": "https://spo-msedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://xiaomi.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.mi.com/"
+  },
+  {
+   "url": "https://reg.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.reg.ru/"
+  },
+  {
+   "url": "https://nytimes.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.nytimes.com/"
+  },
+  {
+   "url": "https://tumblr.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.tumblr.com/"
+  },
+  {
+   "url": "https://azurefd.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://archive.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://archive.org/"
+  },
+  {
+   "url": "https://msftconnecttest.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://ax-msedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://shopify.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.shopify.com/"
+  },
+  {
+   "url": "https://miit.gov.cn",
+   "error": "Error"
+  },
+  {
+   "url": "https://paypal.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.paypal.com/in/home"
+  },
+  {
+   "url": "https://aliyuncs.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://aliyuncs.com/"
+  },
+  {
+   "url": "https://nflxso.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://3gppnetwork.org",
+   "error": "Error"
+  },
+  {
+   "url": "https://adobe.io",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://developer.adobe.com/"
+  },
+  {
+   "url": "https://discord.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://discord.com/"
+  },
+  {
+   "url": "https://applovin.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://applovin.com/en"
+  },
+  {
+   "url": "https://azurewebsites.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://ggpht.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://userapi.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://vk.ru/challenge.html?tid=X_J733BKI3ARSojn-sQqeKI2zVz2Zw&hash429=fMUEwuO9JjrGnV_L9C2t4j5vg-jOjOhZpOOS5_3L6MY6XvpjlVTGAZKFT-RPfW4fqqg8alJdK1inDbWBh14WUqduGwW4-4jj40qVVWaqL2qlS2yIOCHD0bFS8_Esici-XlfNE62z3TCeQYiE&sign=lmd8RFKE433avUDkgf7WFA&back=https%3A%2F%2Fvk.ru%2F&origin=&lang_id="
+  },
+  {
+   "url": "https://bytefcdn-oversea.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://wac-msedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://macromedia.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://webex.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.webex.com/"
+  },
+  {
+   "url": "https://flickr.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://flickr.com/"
+  },
+  {
+   "url": "https://dns-parking.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://aws.dev",
+   "error": "Error"
+  },
+  {
+   "url": "https://f5.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.f5.com/"
+  },
+  {
+   "url": "https://jomodns.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://one.one",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.one.com/en-gb/"
+  },
+  {
+   "url": "https://cdn-apple.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://w3.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.w3.org/"
+  },
+  {
+   "url": "https://static.microsoft",
+   "error": "Error"
+  },
+  {
+   "url": "https://adtrafficquality.google",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.google.com/ads/adtrafficquality/"
+  },
+  {
+   "url": "https://medium.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://medium.com/?__cf_chl_rt_tk=pvWTZeC4Vxj8k0v2gilQf2NwgyCqfVq0VnUYwOefvPE-1795829167-1.0.1.1-Qiy2ZyALuZc7eyQlVvoMM.NcQl_wz3B7cGNhmoyKoFc"
+  },
+  {
+   "url": "https://akamaitech.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://tm-azurefd.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://soundcloud.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://soundcloud.com/"
+  },
+  {
+   "url": "https://example.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://example.com/"
+  },
+  {
+   "url": "https://cnn.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://edition.cnn.com/"
+  },
+  {
+   "url": "https://hichina.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://theguardian.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.theguardian.com/international"
+  },
+  {
+   "url": "https://sfx.ms",
+   "error": "Error"
+  },
+  {
+   "url": "https://ipv4only.arpa",
+   "error": "TimeoutError"
+  },
+  {
+   "url": "https://taboola.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.taboola.com/"
+  },
+  {
+   "url": "https://oracle.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.oracle.com/"
+  },
+  {
+   "url": "https://ttdns2.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://rubiconproject.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.magnite.com/"
+  },
+  {
+   "url": "https://forbes.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://forbes.com/"
+  },
+  {
+   "url": "https://vungle.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://liftoff.ai/"
+  },
+  {
+   "url": "https://fastly-edge.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://creativecommons.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://creativecommons.org/"
+  },
+  {
+   "url": "https://nominetdns.uk",
+   "error": "Error"
+  },
+  {
+   "url": "https://shifen.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://nic.direct",
+   "error": "Error"
+  },
+  {
+   "url": "https://ozon.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://ozon.ru/?__rr=1"
+  },
+  {
+   "url": "https://pubmatic.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://pubmatic.com/"
+  },
+  {
+   "url": "https://avast.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.avast.com/en-in/index#pc"
+  },
+  {
+   "url": "https://edgcdn.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://msedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://bbc.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.bbc.com/"
+  },
+  {
+   "url": "https://spov-msedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://cpanel.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.cpanel.net/"
+  },
+  {
+   "url": "https://ebay.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.ebay.com/"
+  },
+  {
+   "url": "https://weather.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://weather.com/en-IN/in/karnataka/bengaluru/locality/gandhi-nagar/today?Goto=Redirected"
+  },
+  {
+   "url": "https://youtube-nocookie.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://twitch.tv",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.twitch.tv/"
+  },
+  {
+   "url": "https://sciencedirect.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.sciencedirect.com/"
+  },
+  {
+   "url": "https://pki.goog",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://pki.goog/"
+  },
+  {
+   "url": "https://t.co",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://t.co/"
+  },
+  {
+   "url": "https://oxylabs.io",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://oxylabs.io/"
+  },
+  {
+   "url": "https://researchgate.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.researchgate.net/"
+  },
+  {
+   "url": "https://bbc.co.uk",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.bbc.com/"
+  },
+  {
+   "url": "https://t-online.de",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.t-online.de/"
+  },
+  {
+   "url": "https://azureedge.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://gmail.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://accounts.google.com/v3/signin/identifier?continue=https://mail.google.com/mail/u/0/&emr=1&followup=https://mail.google.com/mail/u/0/&osid=1&passive=1209600&service=mail&flowName=WebLiteSignIn&flowEntry=ServiceLogin&dsh=S-1573736235:1795829234443243"
+  },
+  {
+   "url": "https://mit.edu",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://web.mit.edu/"
+  },
+  {
+   "url": "https://miui.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://home.miui.com/"
+  },
+  {
+   "url": "https://doi.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.doi.org/"
+  },
+  {
+   "url": "https://android.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.android.com/"
+  },
+  {
+   "url": "https://sourceforge.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://sourceforge.net/"
+  },
+  {
+   "url": "https://akamaized.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://canva.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.canva.com/"
+  },
+  {
+   "url": "https://adsrvr.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://adsrvr.org/"
+  },
+  {
+   "url": "https://nist.gov",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.nist.gov/"
+  },
+  {
+   "url": "https://adnxs.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://shopifysvc.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://cisco.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.cisco.com/"
+  },
+  {
+   "url": "https://wsdvs.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://vecdnlb.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://ksyuncdn.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://ubuntu.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://ubuntu.com/"
+  },
+  {
+   "url": "https://imdb.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.imdb.com/"
+  },
+  {
+   "url": "https://stripe.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://stripe.com/in"
+  },
+  {
+   "url": "https://scorecardresearch.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.scorecardresearch.com/Home.aspx"
+  },
+  {
+   "url": "https://libp2p.direct",
+   "error": "Error"
+  },
+  {
+   "url": "https://who.int",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.who.int/"
+  },
+  {
+   "url": "https://telegram.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://telegram.org/"
+  },
+  {
+   "url": "https://hubspot.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.hubspot.com/"
+  },
+  {
+   "url": "https://roku.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.roku.com/"
+  },
+  {
+   "url": "https://casalemedia.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.indexexchange.com/"
+  },
+  {
+   "url": "https://openai.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://openai.com/"
+  },
+  {
+   "url": "https://cdngslb.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://meraki.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.cisco.com/site/us/en/about/corporate-strategy-office/acquisitions/meraki/index.html"
+  },
+  {
+   "url": "https://wixsite.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://linktr.ee",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://linktr.ee/"
+  },
+  {
+   "url": "https://playstation.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://mts.ru",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://moskva.mts.ru/personal"
+  },
+  {
+   "url": "https://booking.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.booking.com/?chal_t=1795829277913&force_referer="
+  },
+  {
+   "url": "https://omtrdc.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://alibabadns.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://dropcatch.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.dropcatch.com/"
+  },
+  {
+   "url": "https://adsafeprotected.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://adsafeprotected.com/skeleton.gif"
+  },
+  {
+   "url": "https://facebook.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://capcutapi.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://comcast.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.xfinity.com/"
+  },
+  {
+   "url": "https://pages.dev",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.cloudflare.com/products/pages/"
+  },
+  {
+   "url": "https://forter.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.forter.com/"
+  },
+  {
+   "url": "https://ttvnw.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://wikimedia.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://wikimedia.org/"
+  },
+  {
+   "url": "https://launchpad.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://launchpad.net/"
+  },
+  {
+   "url": "https://doubleverify.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://doubleverify.com/"
+  },
+  {
+   "url": "https://hp.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.hp.com/in-en/home.html"
+  },
+  {
+   "url": "https://salesforce.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.salesforce.com/"
+  },
+  {
+   "url": "https://springer.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://link.springer.com/brands/springer"
+  },
+  {
+   "url": "https://telekom.net",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.telekom.com/en"
+  },
+  {
+   "url": "https://telecid.ru",
+   "error": "Error"
+  },
+  {
+   "url": "https://tinyurl.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://tinyurl.com/"
+  },
+  {
+   "url": "https://ampproject.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://amp.dev/"
+  },
+  {
+   "url": "https://tiktokcdn-us.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://ibm.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.ibm.com/in-en"
+  },
+  {
+   "url": "https://reuters.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.reuters.com/"
+  },
+  {
+   "url": "https://byteoversea.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://samsungcloud.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.samsungcloud.com/en/login"
+  },
+  {
+   "url": "https://mozilla.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.firefox.com/en-US/"
+  },
+  {
+   "url": "https://myhuaweicloud.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://heytapmobile.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://mangosip.ru",
+   "error": "Error"
+  },
+  {
+   "url": "https://mzstatic.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.apple.com/"
+  },
+  {
+   "url": "https://inmobi.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.inmobi.com/"
+  },
+  {
+   "url": "https://www.gov.uk",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.gov.uk/"
+  },
+  {
+   "url": "https://dnsmadeeasy.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://dnsmadeeasy.com/"
+  },
+  {
+   "url": "https://alibaba.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.alibaba.com/"
+  },
+  {
+   "url": "https://afternic.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.afternic.com/"
+  },
+  {
+   "url": "https://jsdelivr.net",
+   "error": "Error"
+  },
+  {
+   "url": "https://nature.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.nature.com/"
+  },
+  {
+   "url": "https://googleblog.com",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "danger",
+     "label": "\u26a0 fake link",
+     "why": "Unmaskr: the link text shows Google.org (Google), but it really goes to blog.google.",
+     "href": "https://blog.google/company-news/outreach-and-initiatives/google-org/",
+     "text": "Google.org"
+    },
+    {
+     "kind": "danger",
+     "label": "\u26a0 fake link",
+     "why": "Unmaskr: the link text shows Google.org (Google), but it really goes to blog.google.",
+     "href": "https://blog.google/company-news/outreach-and-initiatives/google-org/",
+     "text": "Google.org"
+    },
+    {
+     "kind": "danger",
+     "label": "\u26a0 fake link",
+     "why": "Unmaskr: the link text shows Google.org (Google), but it really goes to blog.google.",
+     "href": "https://blog.google/company-news/outreach-and-initiatives/google-org/",
+     "text": "Google.org"
+    }
+   ],
+   "final": "https://blog.google/"
+  },
+  {
+   "url": "https://myshopify.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://myshopify.com/"
+  },
+  {
+   "url": "https://lsrelayaccess.com",
+   "error": "TimeoutError"
+  },
+  {
+   "url": "https://duckdns.org",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.duckdns.org/"
+  },
+  {
+   "url": "https://shalltry.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://shalltry.com/"
+  },
+  {
+   "url": "https://www.irctc.co.in",
+   "error": "Error"
+  },
+  {
+   "url": "https://etsy.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.etsy.com/"
+  },
+  {
+   "url": "https://www.hdfcbank.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.hdfc.bank.in/"
+  },
+  {
+   "url": "https://www.myntra.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://www.zomato.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://www.swiggy.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://www.icicibank.com",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: icicibank.onelink.me may imitate ICICI Bank (risk 30/100)",
+     "href": "https://icicibank.onelink.me/htzW/FDIndex?adobe_mc=MCMID=82559235580478931263745222457960194510|MCORGID=6EE66F3A6038FCF30A495FB7%40AdobeOrg|TS=1795829356065",
+     "text": "Open FD"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: icicibank.onelink.me may imitate ICICI Bank (risk 30/100)",
+     "href": "https://icicibank.onelink.me/htzW/paymentstabupi?adobe_mc=MCMID=82559235580478931263745222457960194510|MCORGID=6EE66F3A6038FCF30A495FB7%40AdobeOrg|TS=1795829356065",
+     "text": "Use iMobile App"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: icicibank.onelink.me may imitate ICICI Bank (risk 30/100)",
+     "href": "https://icicibank.onelink.me/htzW/MutualFund?adobe_mc=MCMID=82559235580478931263745222457960194510|MCORGID=6EE66F3A6038FCF30A495FB7%40AdobeOrg|TS=1795829356065",
+     "text": "Invest now"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: icicibank.onelink.me may imitate ICICI Bank (risk 30/100)",
+     "href": "https://icicibank.onelink.me/htzW/MutualFund?adobe_mc=MCMID=82559235580478931263745222457960194510|MCORGID=6EE66F3A6038FCF30A495FB7%40AdobeOrg|TS=1795829356065",
+     "text": "Invest now"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.bh may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.bh/en/home",
+     "text": "Bahrain"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.ca may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.ca/home",
+     "text": "Canada"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.de may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.de/home",
+     "text": "Germany"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.hk may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.hk/home",
+     "text": "Hong Kong"
+    },
+    {
+     "kind": "danger",
+     "label": "\u26a0 fake",
+     "why": "Unmaskr: www.icicibank.com.sg looks like a fake of ICICI Bank (risk 65/100)",
+     "href": "https://www.icicibank.com.sg/home",
+     "text": "Singapore"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.co.uk may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.co.uk/home",
+     "text": "UK"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.ae may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.ae/en/home",
+     "text": "DIFC-UAE"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.bh may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.bh/",
+     "text": "Bahrain"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.ca may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.ca/",
+     "text": "Canada"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.de may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.de/",
+     "text": "Germany"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.hk may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.hk/home",
+     "text": "Hong Kong"
+    },
+    {
+     "kind": "danger",
+     "label": "\u26a0 fake",
+     "why": "Unmaskr: www.icicibank.com.sg looks like a fake of ICICI Bank (risk 65/100)",
+     "href": "https://www.icicibank.com.sg/",
+     "text": "Singapore"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.co.uk may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.co.uk/",
+     "text": "UK"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.icicibank.ae may imitate ICICI Bank (risk 32/100)",
+     "href": "https://www.icicibank.ae/",
+     "text": "DIFC-UAE"
+    }
+   ],
+   "final": "https://www.icici.bank.in/"
+  },
+  {
+   "url": "https://www.sbi.co.in",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: sbi.bank.in may imitate SBI (risk 32/100)",
+     "href": "https://sbi.bank.in/",
+     "text": "https://sbi.bank.in"
+    }
+   ],
+   "final": "https://sbi.co.in/redirect/"
+  },
+  {
+   "url": "https://www.makemytrip.com",
+   "error": "Error"
+  },
+  {
+   "url": "https://www.amazon.in",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: amazon.jobs may imitate Amazon (risk 32/100)",
+     "href": "https://amazon.jobs/",
+     "text": "Careers"
+    },
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.amazon.science may imitate Amazon (risk 32/100)",
+     "href": "https://www.amazon.science/",
+     "text": "Amazon Science"
+    }
+   ],
+   "final": "https://www.amazon.in/"
+  },
+  {
+   "url": "https://www.flipkart.com",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: www.flipkartcareers.com may imitate Flipkart (risk 55/100)",
+     "href": "https://www.flipkartcareers.com/?otracker=footer_navlinks",
+     "text": "Careers"
+    }
+   ],
+   "final": "https://www.flipkart.com/"
+  },
+  {
+   "url": "https://www.phonepe.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.phonepe.com/"
+  },
+  {
+   "url": "https://www.ndtv.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.ndtv.com/"
+  },
+  {
+   "url": "https://www.paytm.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://paytm.com/"
+  },
+  {
+   "url": "https://timesofindia.indiatimes.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://timesofindia.indiatimes.com/defaultinterstitial.cms?b=/"
+  },
+  {
+   "url": "https://www.moneycontrol.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.moneycontrol.com/"
+  },
+  {
+   "url": "https://support.microsoft.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://support.microsoft.com/en-us/"
+  },
+  {
+   "url": "https://support.apple.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://support.apple.com/"
+  },
+  {
+   "url": "https://support.google.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://support.google.com/"
+  },
+  {
+   "url": "https://www.zendesk.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.zendesk.com/in/#georedirect"
+  },
+  {
+   "url": "https://www.reddit.com/r/india",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.reddit.com/r/india/?solution=f2e0c055d73dcc45f2e0c055d73dcc45&js_challenge=1&jsc_token=2824be10929bdc604753c70a67a1c331f87d47a25bd33b05c7c691ad52b0163b&jsc_orig_r="
+  },
+  {
+   "url": "https://www.thehindu.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://www.thehindu.com/"
+  },
+  {
+   "url": "https://help.netflix.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://help.netflix.com/en"
+  },
+  {
+   "url": "https://medium.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://medium.com/"
+  },
+  {
+   "url": "https://news.ycombinator.com",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://news.ycombinator.com/"
+  },
+  {
+   "url": "https://en.wikipedia.org/wiki/Phishing",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://en.wikipedia.org/wiki/Phishing"
+  },
+  {
+   "url": "https://github.com/trending",
+   "block": null,
+   "bar": null,
+   "links": [],
+   "final": "https://github.com/trending"
+  },
+  {
+   "url": "https://stackoverflow.com/questions",
+   "block": null,
+   "bar": null,
+   "links": [
+    {
+     "kind": "warn",
+     "label": "\u26a0 risky",
+     "why": "Unmaskr: apple.stackexchange.com may imitate Apple (risk 30/100)",
+     "href": "https://apple.stackexchange.com/questions/488483/how-can-i-prevent-a-child-from-changing-the-dns-configuration-on-an-ios-device",
+     "text": "How can I prevent a child from changing the DNS configuration on an iOS device?"
+    }
+   ],
+   "final": "https://stackoverflow.com/questions"
+  }
+ ]
+}

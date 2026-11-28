@@ -6,6 +6,7 @@ import { decodeHost } from './punycode'
 import { registrableParts } from '../data/publicSuffix'
 import {
   BRANDS,
+  VERIFIED_SUFFIXES,
   SUSPICIOUS_TLDS,
   COMMON_TLDS,
   LURE_WORDS,
@@ -165,7 +166,11 @@ function ownsHere(b: Brand, sld: string, lastLabel: string, strict: boolean): bo
 }
 
 function isOfficial(b: Brand, registrable: string, sld: string, lastLabel: string, strict = false): boolean {
-  return registrable === b.domain || !!b.altDomains?.includes(registrable) || ownsHere(b, sld, lastLabel, strict)
+  return registrable === b.domain || !!b.altDomains?.includes(registrable) || ownsHere(b, sld, lastLabel, strict) ||
+    (sld === b.core && VERIFIED_SUFFIXES.has(registrable.slice(sld.length + 1))) || // sbi.bank.in
+    // A dot-brand TLD (blog.google, aws.amazon, x.sbi): a TLD spelled like the brand is
+    // either the brand's own registry or does not exist, so it cannot be a lookalike.
+    (lastLabel === b.core && registrable.endsWith('.' + lastLabel))
 }
 
 /** The curated brand this host officially belongs to, or null. Strict: used by
@@ -303,6 +308,17 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     }
   }
 
+  // A name under a verified-only registry (.bank.in, .fin.in) was registered by
+  // a vetted institution, so it cannot be a bought lookalike.
+  if (VERIFIED_SUFFIXES.has(tld) && !homoglyphUsed && !userinfo) {
+    return {
+      input, host, registrable, sld, tld, skeleton: skel(host),
+      level: 'safe', score: 0, brand: officialByDomain ?? null, similarity: 1,
+      distance: 0, trace: [], homoglyphs: [], ops,
+      signals: [{ label: 'Verified bank domain', detail: `Only banks and regulated financial firms can register names under .${tld} (RBI / IDRBT), so ${registrable} is not a lookalike.`, weight: 0 }],
+    }
+  }
+
   const signals: Signal[] = []
   let risk = 0
   const add = (label: string, detail: string, weight: number) => {
@@ -362,7 +378,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // otherwise it is almost certainly the same company's other domain, not an
     // impersonation. Curated brands (e.g. banks) keep the strict behaviour.
     const isLearned = exactCoreBrand.category === 'Your site'
-    if (!isLearned || tldSuspicious || lure.length > 0 || homoglyphUsed) {
+    if ((!isLearned && !exactCoreBrand.generic) || tldSuspicious || lure.length > 0 || homoglyphUsed) {
       impersonated = exactCoreBrand
       // Regional brands (banks, gov) never own their name on a throwaway TLD →
       // block. Global brands sometimes register those defensively (google.tk
@@ -380,14 +396,17 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // (googlee, appple): that is a typosquat, not a product name, so flag it.
     const typoClose = b ? sldSkel.length - b.core.length <= 2 : false
     const corroborated = ABLATE.noCorroboration || lure.length > 0 || tldSuspicious || homoglyphUsed || typoClose
-    // Combosquat (RT-05): a money/government brand as a whole hyphen-separated
-    // word (hdfcbank-netbanking.com, paytm-upi.com) is a warning even with no
-    // lure — banks, payment apps and government portals don't hyphenate their
-    // name onto other words. Big tech/media/shopping brands do
-    // (apple-cloudkit.com, microsoft-int.com), so they still need corroboration.
-    // Warn-level only.
-    const asWord = b ? STRICT_COMBO.has(b.category) && tokens.includes(b.core) : false
-    if (b && sld !== b.core && (corroborated || asWord)) {
+    // Combosquat (RT-05): a protected brand as a whole hyphen-separated word
+    // (hdfcbank-netbanking.com, google-cards.com) is a warning even with no lure
+    // word. Warn-level only. Brands' own hyphenated hosts (apple-cloudkit.com)
+    // belong in altDomains; the v0.3 rule limited this to regulated categories
+    // (ABLATE.comboStrictOnly measures that trade-off).
+    const asWord = b ? !b.generic && (!ABLATE.comboStrictOnly || STRICT_COMBO.has(b.category)) && tokens.includes(b.core) : false
+    // A bank / payment / government brand glued to another word at either end
+    // (onlinehdfcbank.com, paytmpay.com): regulated brands do not do this either.
+    const glued = b ? !ABLATE.noGluedStrict && !b.generic && STRICT_COMBO.has(b.category) && b.core.length >= 5 &&
+      (sldSkel.startsWith(b.core) || sldSkel.endsWith(b.core)) : false
+    if (b && sld !== b.core && (corroborated || asWord || glued)) {
       impersonated = b
       add(asWord && !corroborated ? 'Brand name combined with other words' : 'Brand hidden in a longer name',
         `'${b.core}' (${b.name}) is embedded inside '${sld}', which is not the official ${b.domain}.`, corroborated ? 0.4 : 0.32)
@@ -405,7 +424,14 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // a single transposition there — a letter swap is a strong typosquat signal
     // and (unlike a substitution) rarely collides with unrelated real words.
     const shortCoreSwap = nearest.core.length <= 5 && bestDist <= 1 && swapped
-    if (bestSim >= 0.8 || shortCoreSwap) {
+    // Brands that are ordinary words need corroboration. (Experiment, off: also
+    // demand a disguise-type edit for short names; it cost 5.4 points of recall
+    // on registered lookalikes to remove 14 held-out false alarms.)
+    const disguised = rr.trace.some((o) => o.kind === 'visual' || o.kind === 'keyboard' || o.type === 'transpose')
+    const corroboratedNear = lure.length > 0 || tldSuspicious || homoglyphUsed
+    const shortOk = !ABLATE.shortCoreRule || nearest.core.length > 5 || disguised || corroboratedNear
+    const genericOk = !nearest.generic || corroboratedNear
+    if ((bestSim >= 0.8 || shortCoreSwap) && shortOk && genericOk) {
       impersonated = nearest
       const how = visual ? ', via a digit/letter swap' : swapped ? ', via swapped letters' : ''
       add('Look-alike of a brand', `'${sld}' is ${Math.round(bestSim * 100)}% similar to '${nearest.core}' (${nearest.name})${how}.`, visual ? 0.45 : 0.3)
@@ -417,6 +443,19 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   if (subBrand && !officialByDomain) {
     impersonated = impersonated ?? subBrand
     add('Brand in a sub-domain', `'${subBrand.core}' (${subBrand.name}) appears as a sub-domain, but the real owner is '${registrable}'.`, 0.3)
+  }
+
+  // ── Brand split across a dot (pay.pal.com, ko.tak.com, razo.rpay.com) ──
+  // The registered label alone looks nothing like the brand; glued back to the
+  // sub-domain in front of it, it is the brand exactly. Warn-level only: pal.com
+  // may be a real business with a pay. sub-domain.
+  if (!impersonated && subdomains.length) {
+    const glued = [skel(subdomains[subdomains.length - 1] + sld), skel(subdomains.join('') + sld)]
+    const split = allBrands.find((b) => b.core.length >= 5 && glued.includes(b.core))
+    if (split) {
+      impersonated = split
+      add('Brand split by a dot', `'${host}' spells '${split.core}' (${split.name}) with a dot inside it, but the real owner is '${registrable}'.`, 0.4)
+    }
   }
 
   // Homoglyphs present but no brand pinned yet → attach the nearest if close.
