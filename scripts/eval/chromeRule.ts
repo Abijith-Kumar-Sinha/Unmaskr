@@ -25,8 +25,8 @@ const OFFICIAL = new Set(TARGETS.map((t) => t.domain))
 
 // kSkeletonsOfPopularKeywordsForCSQ, plain spelling.
 const CSQ_KEYWORDS = ['account', 'activate', 'admin', 'coin', 'crypto', 'login', 'logout', 'password', 'secure', 'security', 'signin', 'signout', 'wallet']
-// ponytail: url_formatter::IsEditDistanceCandidate was not read; we assume the
-// e2LD must have >= 5 characters. Verify against top_domain_util before citing.
+// url_formatter::top_domains::IsEditDistanceCandidate: kMinLengthForEditDistance = 5,
+// measured on the hostname without its registry (top_domain_util.cc, blob 38224668).
 const MIN_EDIT_DISTANCE_E2LD = 5
 const MIN_E2LD_TARGET_EMBEDDING = 4 // kMinE2LDLengthForTargetEmbedding
 const MIN_BRAND_CSQ = 4 // kMinBrandNameLengthForComboSquatting (brands longer than this)

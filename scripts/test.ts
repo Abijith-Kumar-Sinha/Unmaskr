@@ -1,4 +1,5 @@
 import { analyze, officialBrandOf, oauthRedirectTarget } from '../src/algorithms/scoring'
+import { predictML } from '../src/algorithms/mlScore'
 
 const cases = [
   'paypal.com', // legit
@@ -79,4 +80,7 @@ const nested = `https://accounts.google.com/signin/oauth/consent?continue=${enco
 if (oauthRedirectTarget(nested) !== evilCb) throw new Error('RT-21: nested continue redirect_uri not found')
 if (oauthRedirectTarget('https://www.google.com/search?redirect_uri=https://x.y/') !== null) throw new Error('RT-21: non-OAuth page must be ignored')
 if (analyze(evilCb).level !== 'dangerous') throw new Error('RT-21: lookalike redirect target must be flagged')
+// The ML path must not miss the userinfo trick either (paper eval found 0 %).
+if (predictML('https://hdfcbank.com@secure-check.xyz/login').level !== 'dangerous') throw new Error('ML: userinfo trick not blocked')
+if (predictML('paypal.com').level !== 'safe') throw new Error('ML: official domain flagged')
 console.log('red-team regressions: all OK')

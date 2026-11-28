@@ -21,7 +21,7 @@ import { BRANDS } from '../../src/data/brands'
 import { generateLookalikes } from './lookalikes'
 import { chromeAction } from './chromeRule'
 import { attacks, benign } from '../redteam/fuzz'
-import { trainLR, bestF1Threshold, mulberry32, split, type LRRow } from '../ml/lr'
+import { trainLR, bestF1Threshold, mulberry32, split, fitPlatt, type LRRow } from '../ml/lr'
 
 const ROOT = resolve(import.meta.dirname, '../..')
 const DATA = resolve(ROOT, 'data-eval')
@@ -158,16 +158,23 @@ const parts = ['real', 'synth', 'neg'].map((s) => split(rows.filter((r) => r.src
 const trainRows = parts.flatMap((p) => p.tr), testRows = parts.flatMap((p) => p.te)
 const lr = trainLR(trainRows)
 const thr = bestF1Threshold(trainRows, lr.prob)
-const probs = testRows.map((r) => lr.prob(r))
-const brier = testRows.reduce((s, r, k) => s + (probs[k] - r.y) ** 2, 0) / testRows.length
-const bins = Array.from({ length: 10 }, (_, b) => ({ lo: b / 10, hi: (b + 1) / 10, n: 0, meanP: 0, frac: 0 }))
-testRows.forEach((r, k) => { const b = bins[Math.min(9, Math.floor(probs[k] * 10))]; b.n++; b.meanP += probs[k]; b.frac += r.y })
-for (const b of bins) if (b.n) { b.meanP /= b.n; b.frac /= b.n }
-const ece = bins.reduce((s, b) => s + (b.n / testRows.length) * Math.abs(b.meanP - b.frac), 0)
+// Platt scaling fitted on the TRAIN split's logits, judged on the held-out split.
+const platt = fitPlatt(trainRows.map(lr.logit), trainRows.map((r) => r.y))
+function calStats(p: number[]) {
+  const brier = testRows.reduce((s, r, k) => s + (p[k] - r.y) ** 2, 0) / testRows.length
+  const bins = Array.from({ length: 10 }, (_, b) => ({ lo: b / 10, hi: (b + 1) / 10, n: 0, meanP: 0, frac: 0 }))
+  testRows.forEach((r, k) => { const b = bins[Math.min(9, Math.floor(p[k] * 10))]; b.n++; b.meanP += p[k]; b.frac += r.y })
+  for (const b of bins) if (b.n) { b.meanP /= b.n; b.frac /= b.n }
+  const ece = bins.reduce((s, b) => s + (b.n / testRows.length) * Math.abs(b.meanP - b.frac), 0)
+  return { brier, ece, bins }
+}
+const raw = calStats(testRows.map((r) => lr.prob(r)))
+const platted = calStats(testRows.map((r) => 1 / (1 + Math.exp(-(platt.a * lr.logit(r) + platt.b)))))
+const { brier, ece, bins } = raw
 // Same split for the posterior predictive of a positive-only subset: real-data recall at the train threshold.
 const realTe = parts[0].te, negTe = parts[2].te
 const calibration = {
-  train: trainRows.length, test: testRows.length, threshold: thr, brier, ece, bins,
+  train: trainRows.length, test: testRows.length, threshold: thr, brier, ece, bins, platt, calibrated: platted,
   heldOutRealRecall: realTe.filter((r) => lr.prob(r) >= thr).length / realTe.length,
   heldOutFPR: negTe.filter((r) => lr.prob(r) >= thr).length / negTe.length,
   baseRate: testRows.filter((r) => r.y).length / testRows.length,
@@ -216,8 +223,9 @@ const ak = Object.keys(ablation.full)
 md.push('## Ablation (Unmaskr rules; recall % or FP count)', '', `| Removed | ${ak.join(' | ')} |`, `|---|${ak.map(() => '---').join('|')}|`)
 for (const [k, v] of Object.entries(ablation)) md.push(`| ${k} | ${ak.map((c) => (c.includes('FP') ? String(v[c]) : pct(v[c]))).join(' | ')} |`)
 md.push('', '## LR calibration (held-out 30 %)', '',
-  `Brier ${calibration.brier.toFixed(4)}, ECE ${calibration.ece.toFixed(4)}, base rate ${pct(calibration.baseRate, 2)} %, threshold ${calibration.threshold.toFixed(2)}, held-out real recall ${pct(calibration.heldOutRealRecall)} %, held-out FPR ${pct(calibration.heldOutFPR, 2)} %.`, '',
-  '| Bin | n | mean p | observed |', '|---|---|---|---|', ...bins.map((b) => `| ${b.lo.toFixed(1)}–${b.hi.toFixed(1)} | ${b.n} | ${b.n ? b.meanP.toFixed(3) : '-'} | ${b.n ? b.frac.toFixed(3) : '-'} |`),
+  `Raw (class-weighted LR): Brier ${brier.toFixed(4)}, ECE ${ece.toFixed(4)}. Platt-scaled (fit on train split): Brier ${platted.brier.toFixed(4)}, ECE ${platted.ece.toFixed(4)}. Base rate ${pct(calibration.baseRate, 2)} %, threshold ${calibration.threshold.toFixed(2)}, held-out real recall ${pct(calibration.heldOutRealRecall)} %, held-out FPR ${pct(calibration.heldOutFPR, 2)} %.`, '',
+  '| Bin | raw n | raw mean p | raw observed | Platt n | Platt mean p | Platt observed |', '|---|---|---|---|---|---|---|',
+  ...bins.map((b, i) => { const c = platted.bins[i]; const f = (x: { n: number; meanP: number; frac: number }) => `${x.n} | ${x.n ? x.meanP.toFixed(3) : '-'} | ${x.n ? x.frac.toFixed(3) : '-'}`; return `| ${b.lo.toFixed(1)}–${b.hi.toFixed(1)} | ${f(b)} | ${f(c)} |` }),
   '', '## Latency (ms per verdict, Tranco sweep)', '', '| Detector | mean | p50 | p95 | p99 | max |', '|---|---|---|---|---|---|',
   ...Object.entries(latency).map(([k, l]) => `| ${k} | ${l.mean.toFixed(3)} | ${l.p50.toFixed(3)} | ${l.p95.toFixed(3)} | ${l.p99.toFixed(3)} | ${l.max.toFixed(2)} |`),
   '', '## Benign controls (IDNs, official + popular domains) flagged', '', ...Object.entries(results.benignControlFP).map(([k, v]) => `- ${k}: ${v} / ${benignCtl.length}`))

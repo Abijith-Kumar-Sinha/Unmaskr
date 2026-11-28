@@ -225,6 +225,7 @@ const FRIENDLY: Record<string, string> = {
   exactCore: 'Brand name on another domain',
   homoglyphCount: 'Disguised characters',
   sldLen: 'Name length',
+  brandBeforeAt: 'Brand address before an @',
 }
 
 function MLVerdictBlock({ v }: { v: MLVerdict }) {

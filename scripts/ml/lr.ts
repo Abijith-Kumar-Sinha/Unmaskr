@@ -25,9 +25,33 @@ export function trainLR(train: LRRow[], epochs = 600) {
     for (let j = 0; j < F; j++) w[j] -= 0.5 * (gw[j] / ws + 1e-4 * w[j])
     b -= 0.5 * (gb / ws)
   }
-  const prob = (r: LRRow) => { let t = b; for (let j = 0; j < F; j++) t += w[j] * ((r.x[j] - mean[j]) / std[j]); return sigmoid(t) }
-  return { mean, std, w, b, prob }
+  const logit = (r: LRRow) => { let t = b; for (let j = 0; j < F; j++) t += w[j] * ((r.x[j] - mean[j]) / std[j]); return t }
+  const prob = (r: LRRow) => sigmoid(logit(r))
+  return { mean, std, w, b, logit, prob }
 }
+
+/**
+ * Platt scaling: fit p = sigmoid(a*z + b) to labels by Newton's method on the
+ * (unweighted) log-loss. Undoes the probability inflation of class-weighted
+ * training; monotonic, so it never changes which side of a threshold a site is on.
+ */
+export function fitPlatt(z: number[], y: (0 | 1)[]) {
+  let a = 1, b = 0
+  for (let it = 0; it < 50; it++) {
+    let ga = 0, gb = 0, haa = 0, hab = 0, hbb = 0
+    for (let k = 0; k < z.length; k++) {
+      const p = sigmoid(a * z[k] + b), e = p - y[k], v = p * (1 - p) + 1e-12
+      ga += e * z[k]; gb += e; haa += v * z[k] * z[k]; hab += v * z[k]; hbb += v
+    }
+    const det = haa * hbb - hab * hab
+    if (!det) break
+    const da = (hbb * ga - hab * gb) / det, db = (haa * gb - hab * ga) / det
+    a -= da; b -= db
+    if (Math.abs(da) + Math.abs(db) < 1e-9) break
+  }
+  return { a, b }
+}
+export const logitOf = (p: number) => Math.log(p / (1 - p))
 
 /** Threshold with the best F1 on `rows`. */
 export function bestF1Threshold(rows: LRRow[], prob: (r: LRRow) => number) {
