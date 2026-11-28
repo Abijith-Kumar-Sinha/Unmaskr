@@ -1,0 +1,1739 @@
+{
+  "generatedAt": "2026-11-28T00:22:22.018Z",
+  "commit": "53e17fe",
+  "bootstrap": 1000,
+  "datasets": {
+    "tranco": 50000,
+    "controlled": 511,
+    "dnstwist": 579,
+    "redteam": 1492,
+    "benignControls": 118
+  },
+  "headToHead": {
+    "Unmaskr (warn)": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.9960861056751468,
+        "recallCI": [
+          0.9902152641878669,
+          1
+        ],
+        "fpr": 0.0007,
+        "fprCI": [
+          0.00046,
+          0.00094
+        ],
+        "fp": 35,
+        "precision": 0.9356617647058824,
+        "precisionCI": [
+          0.9156193895870736,
+          0.9566854990583804
+        ],
+        "f1": 0.9649289099526066,
+        "f1CI": [
+          0.9539906103286385,
+          0.9760765550239234
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.9740932642487047,
+        "recallCI": [
+          0.9585492227979274,
+          0.9861830742659758
+        ],
+        "fpr": 0.0007,
+        "fprCI": [
+          0.00048,
+          0.00094
+        ],
+        "fp": 35,
+        "precision": 0.9415692821368948,
+        "precisionCI": [
+          0.9230769230769231,
+          0.9590443686006825
+        ],
+        "f1": 0.9575551782682512,
+        "f1CI": [
+          0.9455155071248953,
+          0.9691252144082332
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.9048257372654156,
+        "recallCI": [
+          0.8887399463806971,
+          0.9195710455764075
+        ],
+        "fpr": 0.0007,
+        "fprCI": [
+          0.0005,
+          0.00096
+        ],
+        "fp": 35,
+        "precision": 0.9747292418772563,
+        "precisionCI": [
+          0.9660649819494584,
+          0.9820531227566404
+        ],
+        "f1": 0.9384775808133472,
+        "f1CI": [
+          0.9289198606271777,
+          0.9471502590673575
+        ]
+      }
+    },
+    "Unmaskr (block)": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.3013698630136986,
+        "recallCI": [
+          0.26418786692759294,
+          0.34442270058708413
+        ],
+        "fpr": 0,
+        "fprCI": [
+          0,
+          0
+        ],
+        "fp": 0,
+        "precision": 1,
+        "precisionCI": [
+          1,
+          1
+        ],
+        "f1": 0.4631578947368421,
+        "f1CI": [
+          0.41795665634674917,
+          0.512372634643377
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.14507772020725387,
+        "recallCI": [
+          0.1157167530224525,
+          0.17616580310880828
+        ],
+        "fpr": 0,
+        "fprCI": [
+          0,
+          0
+        ],
+        "fp": 0,
+        "precision": 1,
+        "precisionCI": [
+          1,
+          1
+        ],
+        "f1": 0.25339366515837103,
+        "f1CI": [
+          0.20743034055727552,
+          0.29955947136563876
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.29222520107238603,
+        "recallCI": [
+          0.2687667560321716,
+          0.3163538873994638
+        ],
+        "fpr": 0,
+        "fprCI": [
+          0,
+          0
+        ],
+        "fp": 0,
+        "precision": 1,
+        "precisionCI": [
+          1,
+          1
+        ],
+        "f1": 0.4522821576763485,
+        "f1CI": [
+          0.42366613840464873,
+          0.4806517311608961
+        ]
+      }
+    },
+    "Unmaskr LR (warn)": {
+      "controlled": {
+        "n": 511,
+        "recall": 1,
+        "recallCI": [
+          1,
+          1
+        ],
+        "fpr": 0.00094,
+        "fprCI": [
+          0.00068,
+          0.00122
+        ],
+        "fp": 47,
+        "precision": 0.9157706093189965,
+        "precisionCI": [
+          0.8933566433566433,
+          0.9376146788990826
+        ],
+        "f1": 0.9560336763330216,
+        "f1CI": [
+          0.9436749769159741,
+          0.9678030303030303
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.9827288428324698,
+        "recallCI": [
+          0.9723661485319517,
+          0.9930915371329879
+        ],
+        "fpr": 0.00094,
+        "fprCI": [
+          0.00068,
+          0.00122
+        ],
+        "fp": 47,
+        "precision": 0.9237012987012987,
+        "precisionCI": [
+          0.9031746031746032,
+          0.9438943894389439
+        ],
+        "f1": 0.9523012552301254,
+        "f1CI": [
+          0.9404958677685951,
+          0.9637742207245156
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.6910187667560321,
+        "recallCI": [
+          0.6668900804289544,
+          0.7131367292225201
+        ],
+        "fpr": 0.00094,
+        "fprCI": [
+          0.00068,
+          0.00124
+        ],
+        "fp": 47,
+        "precision": 0.9564007421150278,
+        "precisionCI": [
+          0.9435336976320583,
+          0.968065693430657
+        ],
+        "f1": 0.8023346303501945,
+        "f1CI": [
+          0.7845303867403315,
+          0.8183925811437402
+        ]
+      }
+    },
+    "Unmaskr LR (block)": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.8532289628180039,
+        "recallCI": [
+          0.821917808219178,
+          0.8845401174168297
+        ],
+        "fpr": 0.00014,
+        "fprCI": [
+          0.00004,
+          0.00026
+        ],
+        "fp": 7,
+        "precision": 0.9841986455981941,
+        "precisionCI": [
+          0.9715536105032823,
+          0.9954648526077098
+        ],
+        "f1": 0.9140461215932913,
+        "f1CI": [
+          0.8953613807982741,
+          0.9327817993795244
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.5509499136442142,
+        "recallCI": [
+          0.5112262521588946,
+          0.5906735751295337
+        ],
+        "fpr": 0.00014,
+        "fprCI": [
+          0.00006,
+          0.00026
+        ],
+        "fp": 7,
+        "precision": 0.9785276073619632,
+        "precisionCI": [
+          0.9603658536585366,
+          0.993485342019544
+        ],
+        "f1": 0.7049723756906079,
+        "f1CI": [
+          0.6704675028506272,
+          0.7372972972972973
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.5134048257372654,
+        "recallCI": [
+          0.48994638069705093,
+          0.5388739946380697
+        ],
+        "fpr": 0.00014,
+        "fprCI": [
+          0.00004,
+          0.00026
+        ],
+        "fp": 7,
+        "precision": 0.9909443725743855,
+        "precisionCI": [
+          0.9835651074589128,
+          0.9973474801061007
+        ],
+        "f1": 0.6763796909492273,
+        "f1CI": [
+          0.6558995065051593,
+          0.698219713417282
+        ]
+      }
+    },
+    "Chrome rule (any UI)": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.5714285714285714,
+        "recallCI": [
+          0.5322896281800391,
+          0.6144814090019569
+        ],
+        "fpr": 0.00038,
+        "fprCI": [
+          0.00022,
+          0.00056
+        ],
+        "fp": 19,
+        "precision": 0.9389067524115756,
+        "precisionCI": [
+          0.9117647058823529,
+          0.9642857142857143
+        ],
+        "f1": 0.7104622871046229,
+        "f1CI": [
+          0.6773006134969325,
+          0.7434679334916864
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.8203799654576857,
+        "recallCI": [
+          0.7875647668393783,
+          0.853195164075993
+        ],
+        "fpr": 0.00038,
+        "fprCI": [
+          0.00022,
+          0.00056
+        ],
+        "fp": 19,
+        "precision": 0.9615384615384616,
+        "precisionCI": [
+          0.9443339960238568,
+          0.9781312127236581
+        ],
+        "f1": 0.885368126747437,
+        "f1CI": [
+          0.8644549763033176,
+          0.9050691244239631
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.12265415549597855,
+        "recallCI": [
+          0.10589812332439678,
+          0.1400804289544236
+        ],
+        "fpr": 0.00038,
+        "fprCI": [
+          0.00022,
+          0.00056
+        ],
+        "fp": 19,
+        "precision": 0.905940594059406,
+        "precisionCI": [
+          0.863849765258216,
+          0.9433962264150944
+        ],
+        "f1": 0.21605667060212516,
+        "f1CI": [
+          0.18967587034813926,
+          0.2438739789964994
+        ]
+      }
+    },
+    "Chrome rule (interstitial)": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.12720156555772993,
+        "recallCI": [
+          0.09784735812133072,
+          0.15655577299412915
+        ],
+        "fpr": 0.00004,
+        "fprCI": [
+          0,
+          0.0001
+        ],
+        "fp": 2,
+        "precision": 0.9701492537313433,
+        "precisionCI": [
+          0.918918918918919,
+          1
+        ],
+        "f1": 0.22491349480968856,
+        "f1CI": [
+          0.17730496453900707,
+          0.26981450252951095
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.1226252158894646,
+        "recallCI": [
+          0.09326424870466321,
+          0.15025906735751296
+        ],
+        "fpr": 0.00004,
+        "fprCI": [
+          0,
+          0.0001
+        ],
+        "fp": 2,
+        "precision": 0.9726027397260274,
+        "precisionCI": [
+          0.9305555555555556,
+          1
+        ],
+        "f1": 0.21779141104294478,
+        "f1CI": [
+          0.1700787401574803,
+          0.26047904191616766
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.08176943699731903,
+        "recallCI": [
+          0.06836461126005362,
+          0.09651474530831099
+        ],
+        "fpr": 0.00004,
+        "fprCI": [
+          0,
+          0.0001
+        ],
+        "fp": 2,
+        "precision": 0.9838709677419355,
+        "precisionCI": [
+          0.9576271186440678,
+          1
+        ],
+        "f1": 0.15099009900990099,
+        "f1CI": [
+          0.1277395115842204,
+          0.17593158216249236
+        ]
+      }
+    },
+    "Levenshtein t=1": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.4050880626223092,
+        "recallCI": [
+          0.36203522504892366,
+          0.44422700587084146
+        ],
+        "fpr": 0.0032,
+        "fprCI": [
+          0.00268,
+          0.0037
+        ],
+        "fp": 160,
+        "precision": 0.5640326975476839,
+        "precisionCI": [
+          0.5201072386058981,
+          0.6118251928020566
+        ],
+        "f1": 0.4715261958997722,
+        "f1CI": [
+          0.4316877152698048,
+          0.5081081081081081
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.7633851468048359,
+        "recallCI": [
+          0.7288428324697754,
+          0.7979274611398963
+        ],
+        "fpr": 0.0032,
+        "fprCI": [
+          0.0027,
+          0.0037
+        ],
+        "fp": 160,
+        "precision": 0.7342192691029901,
+        "precisionCI": [
+          0.7038216560509554,
+          0.7679856115107914
+        ],
+        "f1": 0.7485182049110923,
+        "f1CI": [
+          0.7219846022241231,
+          0.7755102040816327
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.510053619302949,
+        "recallCI": [
+          0.48525469168900803,
+          0.5341823056300268
+        ],
+        "fpr": 0.0032,
+        "fprCI": [
+          0.00272,
+          0.00374
+        ],
+        "fp": 160,
+        "precision": 0.8262757871878393,
+        "precisionCI": [
+          0.8032085561497326,
+          0.8508108108108108
+        ],
+        "f1": 0.6307501036054703,
+        "f1CI": [
+          0.6073517126148705,
+          0.6524239934264585
+        ]
+      }
+    },
+    "Levenshtein t=2": {
+      "controlled": {
+        "n": 511,
+        "recall": 0.5048923679060665,
+        "recallCI": [
+          0.4598825831702544,
+          0.547945205479452
+        ],
+        "fpr": 0.01464,
+        "fprCI": [
+          0.0136,
+          0.01576
+        ],
+        "fp": 732,
+        "precision": 0.2606060606060606,
+        "precisionCI": [
+          0.23980582524271846,
+          0.28144329896907216
+        ],
+        "f1": 0.3437708194536976,
+        "f1CI": [
+          0.3159973666886109,
+          0.3704206241519674
+        ]
+      },
+      "dnstwist": {
+        "n": 579,
+        "recall": 0.8480138169257341,
+        "recallCI": [
+          0.8186528497409327,
+          0.8773747841105354
+        ],
+        "fpr": 0.01464,
+        "fprCI": [
+          0.0136,
+          0.0157
+        ],
+        "fp": 732,
+        "precision": 0.40147179067865907,
+        "precisionCI": [
+          0.3833736884584342,
+          0.4221276595744681
+        ],
+        "f1": 0.5449500554938956,
+        "f1CI": [
+          0.524315259921744,
+          0.5673678226264923
+        ]
+      },
+      "redteam": {
+        "n": 1492,
+        "recall": 0.510053619302949,
+        "recallCI": [
+          0.4859249329758713,
+          0.5348525469168901
+        ],
+        "fpr": 0.01464,
+        "fprCI": [
+          0.0136,
+          0.0157
+        ],
+        "fp": 732,
+        "precision": 0.5097119892833221,
+        "precisionCI": [
+          0.48970099667774086,
+          0.5317997293640054
+        ],
+        "f1": 0.5098827470686765,
+        "f1CI": [
+          0.49100169779286934,
+          0.5300067430883345
+        ]
+      }
+    }
+  },
+  "perFamily": {
+    "controlled": {
+      "homoglyph": {
+        "Unmaskr (warn)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 86,
+          "recall": 0.9883720930232558
+        },
+        "Unmaskr LR (warn)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 86,
+          "recall": 0.9883720930232558
+        },
+        "Chrome rule (any UI)": {
+          "n": 86,
+          "recall": 0.9418604651162791
+        },
+        "Chrome rule (interstitial)": {
+          "n": 86,
+          "recall": 0.7558139534883721
+        },
+        "Levenshtein t=1": {
+          "n": 86,
+          "recall": 0.38372093023255816
+        },
+        "Levenshtein t=2": {
+          "n": 86,
+          "recall": 0.5581395348837209
+        }
+      },
+      "typo": {
+        "Unmaskr (warn)": {
+          "n": 168,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 168,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 168,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 168,
+          "recall": 0.6309523809523809
+        },
+        "Chrome rule (any UI)": {
+          "n": 168,
+          "recall": 0.8333333333333334
+        },
+        "Chrome rule (interstitial)": {
+          "n": 168,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 168,
+          "recall": 0.5833333333333334
+        },
+        "Levenshtein t=2": {
+          "n": 168,
+          "recall": 0.7738095238095238
+        }
+      },
+      "digit-swap": {
+        "Unmaskr (warn)": {
+          "n": 85,
+          "recall": 0.9764705882352941
+        },
+        "Unmaskr (block)": {
+          "n": 85,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 85,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 85,
+          "recall": 0.9882352941176471
+        },
+        "Chrome rule (any UI)": {
+          "n": 85,
+          "recall": 0.3764705882352941
+        },
+        "Chrome rule (interstitial)": {
+          "n": 85,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 85,
+          "recall": 0.38823529411764707
+        },
+        "Levenshtein t=2": {
+          "n": 85,
+          "recall": 0.43529411764705883
+        }
+      },
+      "combosquat": {
+        "Unmaskr (warn)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 86,
+          "recall": 0.5
+        },
+        "Unmaskr LR (warn)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 86,
+          "recall": 0.9767441860465116
+        },
+        "Chrome rule (any UI)": {
+          "n": 86,
+          "recall": 0.45348837209302323
+        },
+        "Chrome rule (interstitial)": {
+          "n": 86,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 86,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 86,
+          "recall": 0
+        }
+      },
+      "tld-swap": {
+        "Unmaskr (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 43,
+          "recall": 0.6046511627906976
+        },
+        "Unmaskr LR (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 43,
+          "recall": 0.7906976744186046
+        },
+        "Chrome rule (any UI)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 43,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 43,
+          "recall": 1
+        }
+      },
+      "subdomain": {
+        "Unmaskr (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Chrome rule (any UI)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 43,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 43,
+          "recall": 0
+        }
+      }
+    },
+    "dnstwist": {
+      "addition": {
+        "Unmaskr (warn)": {
+          "n": 57,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 57,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 57,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 57,
+          "recall": 0.3684210526315789
+        },
+        "Chrome rule (any UI)": {
+          "n": 57,
+          "recall": 0.8947368421052632
+        },
+        "Chrome rule (interstitial)": {
+          "n": 57,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 57,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 57,
+          "recall": 1
+        }
+      },
+      "bitsquatting": {
+        "Unmaskr (warn)": {
+          "n": 82,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 82,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 82,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 82,
+          "recall": 0.2804878048780488
+        },
+        "Chrome rule (any UI)": {
+          "n": 82,
+          "recall": 0.8048780487804879
+        },
+        "Chrome rule (interstitial)": {
+          "n": 82,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 82,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 82,
+          "recall": 1
+        }
+      },
+      "cyrillic": {
+        "Unmaskr (warn)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Unmaskr LR (warn)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Chrome rule (any UI)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Chrome rule (interstitial)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Levenshtein t=1": {
+          "n": 1,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 1,
+          "recall": 0
+        }
+      },
+      "homoglyph": {
+        "Unmaskr (warn)": {
+          "n": 110,
+          "recall": 0.9818181818181818
+        },
+        "Unmaskr (block)": {
+          "n": 110,
+          "recall": 0.7545454545454545
+        },
+        "Unmaskr LR (warn)": {
+          "n": 110,
+          "recall": 0.990909090909091
+        },
+        "Unmaskr LR (block)": {
+          "n": 110,
+          "recall": 0.9636363636363636
+        },
+        "Chrome rule (any UI)": {
+          "n": 110,
+          "recall": 0.9
+        },
+        "Chrome rule (interstitial)": {
+          "n": 110,
+          "recall": 0.6363636363636364
+        },
+        "Levenshtein t=1": {
+          "n": 110,
+          "recall": 0.15454545454545454
+        },
+        "Levenshtein t=2": {
+          "n": 110,
+          "recall": 0.24545454545454545
+        }
+      },
+      "hyphenation": {
+        "Unmaskr (warn)": {
+          "n": 8,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 8,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 8,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 8,
+          "recall": 0.75
+        },
+        "Chrome rule (any UI)": {
+          "n": 8,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 8,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 8,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 8,
+          "recall": 1
+        }
+      },
+      "insertion": {
+        "Unmaskr (warn)": {
+          "n": 92,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 92,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 92,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 92,
+          "recall": 0.45652173913043476
+        },
+        "Chrome rule (any UI)": {
+          "n": 92,
+          "recall": 0.8913043478260869
+        },
+        "Chrome rule (interstitial)": {
+          "n": 92,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 92,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 92,
+          "recall": 1
+        }
+      },
+      "omission": {
+        "Unmaskr (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 43,
+          "recall": 0.46511627906976744
+        },
+        "Chrome rule (any UI)": {
+          "n": 43,
+          "recall": 0.627906976744186
+        },
+        "Chrome rule (interstitial)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 43,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 43,
+          "recall": 1
+        }
+      },
+      "repetition": {
+        "Unmaskr (warn)": {
+          "n": 16,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 16,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 16,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 16,
+          "recall": 0.6875
+        },
+        "Chrome rule (any UI)": {
+          "n": 16,
+          "recall": 0.75
+        },
+        "Chrome rule (interstitial)": {
+          "n": 16,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 16,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 16,
+          "recall": 1
+        }
+      },
+      "replacement": {
+        "Unmaskr (warn)": {
+          "n": 103,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 103,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 103,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 103,
+          "recall": 0.6116504854368932
+        },
+        "Chrome rule (any UI)": {
+          "n": 103,
+          "recall": 0.8640776699029126
+        },
+        "Chrome rule (interstitial)": {
+          "n": 103,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 103,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 103,
+          "recall": 1
+        }
+      },
+      "subdomain": {
+        "Unmaskr (warn)": {
+          "n": 18,
+          "recall": 0.3333333333333333
+        },
+        "Unmaskr (block)": {
+          "n": 18,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 18,
+          "recall": 0.5555555555555556
+        },
+        "Unmaskr LR (block)": {
+          "n": 18,
+          "recall": 0.16666666666666666
+        },
+        "Chrome rule (any UI)": {
+          "n": 18,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 18,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 18,
+          "recall": 0.3888888888888889
+        },
+        "Levenshtein t=2": {
+          "n": 18,
+          "recall": 0.8333333333333334
+        }
+      },
+      "transposition": {
+        "Unmaskr (warn)": {
+          "n": 31,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 31,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 31,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 31,
+          "recall": 0.6774193548387096
+        },
+        "Chrome rule (any UI)": {
+          "n": 31,
+          "recall": 1
+        },
+        "Chrome rule (interstitial)": {
+          "n": 31,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 31,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 31,
+          "recall": 1
+        }
+      },
+      "vowel-swap": {
+        "Unmaskr (warn)": {
+          "n": 16,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 16,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 16,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 16,
+          "recall": 0.125
+        },
+        "Chrome rule (any UI)": {
+          "n": 16,
+          "recall": 1
+        },
+        "Chrome rule (interstitial)": {
+          "n": 16,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 16,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 16,
+          "recall": 1
+        }
+      },
+      "various": {
+        "Unmaskr (warn)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Unmaskr (block)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Unmaskr LR (block)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Chrome rule (any UI)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 1,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 1,
+          "recall": 0
+        }
+      },
+      "plural": {
+        "Unmaskr (warn)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Chrome rule (any UI)": {
+          "n": 1,
+          "recall": 1
+        },
+        "Chrome rule (interstitial)": {
+          "n": 1,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 1,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 1,
+          "recall": 1
+        }
+      }
+    },
+    "redteam": {
+      "userinfo-trick": {
+        "Unmaskr (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr LR (warn)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Unmaskr LR (block)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Chrome rule (any UI)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 43,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 43,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 43,
+          "recall": 0
+        }
+      },
+      "domain-as-subdomain": {
+        "Unmaskr (warn)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr LR (warn)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 86,
+          "recall": 1
+        },
+        "Chrome rule (any UI)": {
+          "n": 86,
+          "recall": 0.9534883720930233
+        },
+        "Chrome rule (interstitial)": {
+          "n": 86,
+          "recall": 0.9534883720930233
+        },
+        "Levenshtein t=1": {
+          "n": 86,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 86,
+          "recall": 0
+        }
+      },
+      "combosquat-com": {
+        "Unmaskr (warn)": {
+          "n": 602,
+          "recall": 0.7906976744186046
+        },
+        "Unmaskr (block)": {
+          "n": 602,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 602,
+          "recall": 0.3637873754152824
+        },
+        "Unmaskr LR (block)": {
+          "n": 602,
+          "recall": 0.34053156146179403
+        },
+        "Chrome rule (any UI)": {
+          "n": 602,
+          "recall": 0.046511627906976744
+        },
+        "Chrome rule (interstitial)": {
+          "n": 602,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 602,
+          "recall": 0
+        },
+        "Levenshtein t=2": {
+          "n": 602,
+          "recall": 0
+        }
+      },
+      "brand-on-abused-tld": {
+        "Unmaskr (warn)": {
+          "n": 430,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 430,
+          "recall": 0.5441860465116279
+        },
+        "Unmaskr LR (warn)": {
+          "n": 430,
+          "recall": 0.9604651162790697
+        },
+        "Unmaskr LR (block)": {
+          "n": 430,
+          "recall": 0.772093023255814
+        },
+        "Chrome rule (any UI)": {
+          "n": 430,
+          "recall": 0
+        },
+        "Chrome rule (interstitial)": {
+          "n": 430,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 430,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 430,
+          "recall": 1
+        }
+      },
+      "homoglyph-in-tld": {
+        "Unmaskr (warn)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 43,
+          "recall": 1
+        },
+        "Unmaskr LR (warn)": {
+          "n": 43,
+          "recall": 0.6046511627906976
+        },
+        "Unmaskr LR (block)": {
+          "n": 43,
+          "recall": 0.6046511627906976
+        },
+        "Chrome rule (any UI)": {
+          "n": 43,
+          "recall": 0.5581395348837209
+        },
+        "Chrome rule (interstitial)": {
+          "n": 43,
+          "recall": 0.5581395348837209
+        },
+        "Levenshtein t=1": {
+          "n": 43,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 43,
+          "recall": 1
+        }
+      },
+      "bitsquat": {
+        "Unmaskr (warn)": {
+          "n": 258,
+          "recall": 0.937984496124031
+        },
+        "Unmaskr (block)": {
+          "n": 258,
+          "recall": 0
+        },
+        "Unmaskr LR (warn)": {
+          "n": 258,
+          "recall": 0.9961240310077519
+        },
+        "Unmaskr LR (block)": {
+          "n": 258,
+          "recall": 0.3372093023255814
+        },
+        "Chrome rule (any UI)": {
+          "n": 258,
+          "recall": 0.12790697674418605
+        },
+        "Chrome rule (interstitial)": {
+          "n": 258,
+          "recall": 0
+        },
+        "Levenshtein t=1": {
+          "n": 258,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 258,
+          "recall": 1
+        }
+      },
+      "indic-zero": {
+        "Unmaskr (warn)": {
+          "n": 30,
+          "recall": 1
+        },
+        "Unmaskr (block)": {
+          "n": 30,
+          "recall": 1
+        },
+        "Unmaskr LR (warn)": {
+          "n": 30,
+          "recall": 1
+        },
+        "Unmaskr LR (block)": {
+          "n": 30,
+          "recall": 1
+        },
+        "Chrome rule (any UI)": {
+          "n": 30,
+          "recall": 0.5333333333333333
+        },
+        "Chrome rule (interstitial)": {
+          "n": 30,
+          "recall": 0.5333333333333333
+        },
+        "Levenshtein t=1": {
+          "n": 30,
+          "recall": 1
+        },
+        "Levenshtein t=2": {
+          "n": 30,
+          "recall": 1
+        }
+      }
+    }
+  },
+  "ablation": {
+    "full": {
+      "controlled warn": 0.9960861056751468,
+      "controlled block": 0.3013698630136986,
+      "dnstwist warn": 0.9740932642487047,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.9048257372654156,
+      "redteam block": 0.29222520107238603,
+      "Tranco warn FP": 35,
+      "Tranco block FP": 0
+    },
+    "noSkeleton": {
+      "controlled warn": 0.9882583170254403,
+      "controlled block": 0.21330724070450097,
+      "dnstwist warn": 0.9084628670120898,
+      "dnstwist block": 0,
+      "redteam warn": 0.9048257372654156,
+      "redteam block": 0.2432975871313673,
+      "Tranco warn FP": 35,
+      "Tranco block FP": 0
+    },
+    "noMixedScript": {
+      "controlled warn": 0.9960861056751468,
+      "controlled block": 0.2896281800391389,
+      "dnstwist warn": 0.9740932642487047,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.9048257372654156,
+      "redteam block": 0.29222520107238603,
+      "Tranco warn FP": 35,
+      "Tranco block FP": 0
+    },
+    "uniformCosts": {
+      "controlled warn": 0.9060665362035225,
+      "controlled block": 0.299412915851272,
+      "dnstwist warn": 0.9602763385146805,
+      "dnstwist block": 0.1226252158894646,
+      "redteam warn": 0.903485254691689,
+      "redteam block": 0.29222520107238603,
+      "Tranco warn FP": 29,
+      "Tranco block FP": 0
+    },
+    "noTranspose": {
+      "controlled warn": 0.9334637964774951,
+      "controlled block": 0.3013698630136986,
+      "dnstwist warn": 0.9222797927461139,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.9048257372654156,
+      "redteam block": 0.29222520107238603,
+      "Tranco warn FP": 35,
+      "Tranco block FP": 0
+    },
+    "noHorspool": {
+      "controlled warn": 0.9960861056751468,
+      "controlled block": 0.3013698630136986,
+      "dnstwist warn": 0.9740932642487047,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.7305630026809652,
+      "redteam block": 0.29222520107238603,
+      "Tranco warn FP": 30,
+      "Tranco block FP": 0
+    },
+    "noCorroboration": {
+      "controlled warn": 0.9960861056751468,
+      "controlled block": 0.3013698630136986,
+      "dnstwist warn": 0.9758203799654577,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.9892761394101877,
+      "redteam block": 0.29222520107238603,
+      "Tranco warn FP": 132,
+      "Tranco block FP": 0
+    },
+    "noDecoy": {
+      "controlled warn": 0.9960861056751468,
+      "controlled block": 0.3013698630136986,
+      "dnstwist warn": 0.9740932642487047,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.8760053619302949,
+      "redteam block": 0.20576407506702413,
+      "Tranco warn FP": 35,
+      "Tranco block FP": 0
+    },
+    "noSecondary": {
+      "controlled warn": 0.9960861056751468,
+      "controlled block": 0.16634050880626222,
+      "dnstwist warn": 0.9740932642487047,
+      "dnstwist block": 0.14507772020725387,
+      "redteam warn": 0.9048257372654156,
+      "redteam block": 0.1353887399463807,
+      "Tranco warn FP": 35,
+      "Tranco block FP": 0
+    }
+  },
+  "calibration": {
+    "train": 35762,
+    "test": 15328,
+    "threshold": 0.9400000000000006,
+    "brier": 0.00528834125862169,
+    "ece": 0.01798082468415435,
+    "bins": [
+      {
+        "lo": 0,
+        "hi": 0.1,
+        "n": 14466,
+        "meanP": 0.008336296800501465,
+        "frac": 0.00006912760956726116
+      },
+      {
+        "lo": 0.1,
+        "hi": 0.2,
+        "n": 268,
+        "meanP": 0.13647389666695767,
+        "frac": 0
+      },
+      {
+        "lo": 0.2,
+        "hi": 0.3,
+        "n": 88,
+        "meanP": 0.2388834725153891,
+        "frac": 0.011363636363636364
+      },
+      {
+        "lo": 0.3,
+        "hi": 0.4,
+        "n": 57,
+        "meanP": 0.3494681760626784,
+        "frac": 0
+      },
+      {
+        "lo": 0.4,
+        "hi": 0.5,
+        "n": 29,
+        "meanP": 0.449758660805013,
+        "frac": 0
+      },
+      {
+        "lo": 0.5,
+        "hi": 0.6,
+        "n": 27,
+        "meanP": 0.5447970599501504,
+        "frac": 0
+      },
+      {
+        "lo": 0.6,
+        "hi": 0.7,
+        "n": 18,
+        "meanP": 0.6522681198217378,
+        "frac": 0
+      },
+      {
+        "lo": 0.7,
+        "hi": 0.8,
+        "n": 20,
+        "meanP": 0.7465909968890803,
+        "frac": 0.05
+      },
+      {
+        "lo": 0.8,
+        "hi": 0.9,
+        "n": 8,
+        "meanP": 0.8475188252555672,
+        "frac": 0
+      },
+      {
+        "lo": 0.9,
+        "hi": 1,
+        "n": 347,
+        "meanP": 0.9922059274938768,
+        "frac": 0.9365994236311239
+      }
+    ],
+    "heldOutRealRecall": 0.9827586206896551,
+    "heldOutFPR": 0.0010666666666666667,
+    "baseRate": 0.02139874739039666
+  },
+  "latency": {
+    "unmaskr": {
+      "mean": 0.23121521199994663,
+      "p50": 0.22219999998924322,
+      "p95": 0.39859999998589046,
+      "p99": 0.4924999999930151,
+      "max": 1.2566999999980908
+    },
+    "lr": {
+      "mean": 0.22031945799998182,
+      "p50": 0.21290000001317821,
+      "p95": 0.37889999998151325,
+      "p99": 0.4680999999982305,
+      "max": 1.2014999999955762
+    },
+    "chrome": {
+      "mean": 0.011471981999996933,
+      "p50": 0.011599999997997656,
+      "p95": 0.015100000018719584,
+      "p99": 0.016899999987799674,
+      "max": 1.1515999999828637
+    }
+  },
+  "benignControlFP": {
+    "Unmaskr (warn)": 0,
+    "Unmaskr (block)": 0,
+    "Unmaskr LR (warn)": 0,
+    "Unmaskr LR (block)": 0,
+    "Chrome rule (any UI)": 0,
+    "Chrome rule (interstitial)": 0,
+    "Levenshtein t=1": 0,
+    "Levenshtein t=2": 0
+  }
+}
