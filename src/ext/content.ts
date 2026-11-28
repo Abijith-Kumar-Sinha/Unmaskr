@@ -307,6 +307,10 @@ async function pageChecks() {
   // where the app will send you and your account access (redirect_uri).
   // Runs before the official-site skip below on purpose.
   const target = (await ask([{ op: 'oauth', input: location.href }]))[0] as string | null
+  if (target === 'pg:too-long') {
+    pageWarned = true
+    return topBar('this sign-in address is padded to an unusual length, a trick used to hide where it sends you. Don&#39;t approve it unless you are sure.')
+  }
   if (target) {
     const rv = await check(target)
     if (rv && rv.level !== 'safe') {
@@ -419,6 +423,8 @@ function unwrapRedirect(u: URL): URL {
 // covered in warnings; a risky site still gets the warning bar if it is opened.
 const WEBMAIL = /^(mail\.google\.com|outlook\.(live|office|office365)\.com|mail\.yahoo\.com|mail\.proton\.me)$/
 
+const linkInput = (u: URL) => (u.username ? `${u.protocol}//${u.username}${u.password ? ':' + u.password : ''}@${u.host}/` : u.hostname)
+
 async function scanLinks() {
   ensureLinkStyle()
   const here = pageHost()
@@ -453,8 +459,9 @@ async function scanLinks() {
   const reqs: Req[] = []
   for (const t of todo) {
     if (t.shown) reqs.push({ op: 'official', input: t.shown }, { op: 'official', input: t.host })
-    // The userinfo trick needs the full href (https://bank.com@evil.xyz).
-    if (t.host !== here) reqs.push({ op: 'analyze', input: t.u.username ? t.u.href : t.host })
+    // The userinfo trick needs the user-info part (https://bank.com@evil.xyz), but
+    // not the path, which an attacker could pad to any length.
+    if (t.host !== here) reqs.push({ op: 'analyze', input: linkInput(t.u) })
   }
   await ask(reqs)
   const got = (op: Op, input: string) => cache.get(op + '|' + input) ?? null
@@ -472,7 +479,7 @@ async function scanLinks() {
       }
     }
     if (host === here) continue // same-site links
-    const v = got('analyze', u.username ? u.href : host) as Verdict | null
+    const v = got('analyze', linkInput(u)) as Verdict | null
     if (!v || v.level === 'safe') continue
     const danger = v.level === 'dangerous'
     if (!danger && !badgeRisky) continue

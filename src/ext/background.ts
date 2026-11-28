@@ -1,5 +1,6 @@
 /// <reference types="chrome" />
 import { analyze, officialBrandOf, oauthRedirectTarget, parseHost, type Level } from '../algorithms/scoring'
+import { predictML } from '../algorithms/mlScore'
 import { getTrustedBrands, recordVisit, bumpScanned, recordBlock, getEnabled, getAllow, ENABLED_KEY } from './storage'
 
 const BADGE: Record<Level, { text: string; color: string }> = {
@@ -133,14 +134,28 @@ chrome.storage.onChanged.addListener((changes, area) => {
 let engineCtx: { trusted: Awaited<ReturnType<typeof getTrustedBrands>>; allow: Set<string> } | null = null
 chrome.storage.onChanged.addListener((_c, area) => { if (area === 'local') engineCtx = null })
 
+// An input too long to analyse fails CLOSED (suspicious), never open: otherwise
+// padding a link or an OAuth URL past the cap would switch the check off.
+const MAX_INPUT = 65536
+const TOO_LONG = 'pg:too-long'
+function tooLongVerdict(input: string) {
+  return {
+    input: input.slice(0, 200), host: '(an extremely long address)', registrable: '', sld: '', tld: '', skeleton: '',
+    level: 'suspicious', score: 50, brand: null, similarity: 0, distance: 0, trace: [], homoglyphs: [], ops: 0,
+    signals: [{ label: 'Address too long to check', detail: 'This address is padded to an unusual length, a trick used to slip past scanners.', weight: 0.5 }],
+  }
+}
+
 async function answer(op: unknown, input: unknown): Promise<unknown> {
-  if (typeof input !== 'string' || input.length > 2048) return null
+  if (typeof input !== 'string') return null
+  if (input.length > MAX_INPUT) return op === 'analyze' ? tooLongVerdict(input) : op === 'oauth' ? TOO_LONG : null
   engineCtx ??= { trusted: await getTrustedBrands(), allow: new Set(await getAllow()) }
   switch (op) {
     case 'analyze': return analyze(input, engineCtx.trusted, engineCtx.allow)
     case 'official': return officialBrandOf(input)?.name ?? null
     case 'oauth': return oauthRedirectTarget(input)
     case 'allowed': return engineCtx.allow.has(parseHost(input).registrable)
+    case 'ml': return predictML(input)
     default: return null
   }
 }

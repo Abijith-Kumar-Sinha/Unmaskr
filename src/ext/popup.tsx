@@ -1,11 +1,11 @@
 /// <reference types="chrome" />
 import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { analyze, type Verdict, type Level } from '../algorithms/scoring'
-import { predictML, type MLVerdict } from '../algorithms/mlScore'
+// Verdicts come from the background service worker (one copy of the engine).
+import type { Verdict, Level } from '../algorithms/scoring'
+import type { MLVerdict } from '../algorithms/mlScore'
 import type { EditOp } from '../algorithms/editDistance'
-import type { Brand } from '../data/brands'
-import { getTrustedBrands, trustedCount, getStats, getRecent, getEnabled, setEnabled, getScoreMode, setScoreMode, getAllow, addAllow, removeAllow, type ScoreMode, type Threat } from './storage'
+import { trustedCount, getStats, getRecent, getEnabled, setEnabled, getScoreMode, setScoreMode, getAllow, addAllow, removeAllow, type ScoreMode, type Threat } from './storage'
 import './popup.css'
 
 const META: Record<Level, { label: string; color: string; icon: string }> = {
@@ -26,7 +26,6 @@ function Logo() {
 
 function Popup() {
   const [tabHost, setTabHost] = useState<string | null>(null)
-  const [trusted, setTrusted] = useState<Brand[]>([])
   const [learned, setLearned] = useState(0)
   const [stats, setStats] = useState({ scanned: 0, blocked: 0 })
   const [recent, setRecent] = useState<Threat[]>([])
@@ -41,7 +40,6 @@ function Popup() {
       setEnabledState(await getEnabled())
       setMode(await getScoreMode())
       setAllow(await getAllow())
-      setTrusted(await getTrustedBrands())
       setLearned(await trustedCount())
       setStats(await getStats())
       setRecent(await getRecent())
@@ -59,10 +57,28 @@ function Popup() {
 
   const target = override ?? tabHost
   const allowSet = useMemo(() => new Set(allow), [allow])
-  const verdict = useMemo<Verdict | null>(
-    () => (target ? analyze(target, trusted, allowSet) : null),
-    [target, trusted, allowSet],
-  )
+  const [verdict, setVerdict] = useState<Verdict | null>(null)
+  const [mlVerdict, setMlVerdict] = useState<MLVerdict | null>(null)
+  useEffect(() => {
+    let live = true
+    if (!target) {
+      setVerdict(null)
+      setMlVerdict(null)
+      return
+    }
+    const items = [{ op: 'analyze', input: target }, ...(mode === 'ml' ? [{ op: 'ml', input: target }] : [])]
+    chrome.runtime
+      .sendMessage({ type: 'pg-engine', items })
+      .then((r: unknown[] | undefined) => {
+        if (!live) return
+        setVerdict((r?.[0] as Verdict) ?? null)
+        setMlVerdict(mode === 'ml' ? ((r?.[1] as MLVerdict) ?? null) : null)
+      })
+      .catch(() => {})
+    return () => {
+      live = false
+    }
+  }, [target, mode, allow])
 
   const reportSafe = async (registrable: string) => {
     await addAllow(registrable)
@@ -72,10 +88,6 @@ function Popup() {
     await removeAllow(registrable)
     setAllow(await getAllow())
   }
-  const mlVerdict = useMemo<MLVerdict | null>(
-    () => (target && mode === 'ml' ? predictML(target) : null),
-    [target, mode],
-  )
 
   const toggle = async () => {
     const next = !enabled
