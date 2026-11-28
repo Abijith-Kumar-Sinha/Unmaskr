@@ -1,4 +1,5 @@
 import { subCost, subKind } from './confusables'
+import { ABLATE } from './ablation'
 
 // Weighted Damerau–Levenshtein edit distance via dynamic programming.
 //
@@ -50,7 +51,7 @@ export function weightedEditDistance(a: string, b: string): EditResult {
       const ins = dp[i][j - 1] + INDEL_COST
       dp[i][j] = Math.min(sub, del, ins)
       // Transposition: a[i-1]a[i-2] reversed matches b[j-2]b[j-1].
-      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+      if (!ABLATE.noTranspose && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
         dp[i][j] = Math.min(dp[i][j], dp[i - 2][j - 2] + TRANSPOSE_COST)
       }
     }
@@ -63,7 +64,7 @@ export function weightedEditDistance(a: string, b: string): EditResult {
   let j = m
   while (i > 0 || j > 0) {
     if (
-      i > 1 && j > 1 &&
+      !ABLATE.noTranspose && i > 1 && j > 1 &&
       a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1] &&
       dp[i][j] === dp[i - 2][j - 2] + TRANSPOSE_COST
     ) {

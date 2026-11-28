@@ -1,4 +1,5 @@
 import { skeleton } from './confusables'
+import { ABLATE } from './ablation'
 import { weightedEditDistance, similarity, type EditOp } from './editDistance'
 import { findPatterns } from './horspool'
 import { decodeHost } from './punycode'
@@ -207,6 +208,9 @@ export function oauthRedirectTarget(href: string, depth = 0): string | null {
   return null
 }
 
+// Ablation hook: with ABLATE.noSkeleton the engine compares raw labels.
+const skel = (s: string) => (ABLATE.noSkeleton ? s.normalize('NFC').toLowerCase() : skeleton(s))
+
 export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<string>): Verdict {
   const { host, tld, sld, subdomains, lastLabel, registrable, userinfo } = parseHost(input)
   // Learned ("your site") brands are lookalike *targets* only — never a pass
@@ -215,7 +219,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   const learned = extraBrands.filter((b) => b.domain !== registrable && !b.altDomains?.includes(registrable))
   const allBrands = learned.length ? [...BRANDS, ...learned] : BRANDS
   const substrBrands = allBrands.filter((b) => b.core.length >= 4)
-  const sldSkel = skeleton(sld)
+  const sldSkel = skel(sld)
 
   // Confusable-character analysis (UTS #39). `mixedScript`: the label mixes
   // Latin with another script (Latin 'p' + Cyrillic 'а' in 'pаypal') — always a
@@ -227,12 +231,12 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   const sldScripts = letterScriptsOf(sld)
   // Latin + CJK is an allowed mix under UTS #39 "Highly Restrictive" (Japanese
   // and Korean brand names do it); any other mix with Latin is a disguise.
-  const mixedScript = sldScripts.size > 1 && [...sldScripts].some((s) => s !== 'Latin' && s !== 'CJK')
+  const mixedScript = !ABLATE.noMixedScript && sldScripts.size > 1 && [...sldScripts].some((s) => s !== 'Latin' && s !== 'CJK')
   let confusableFold = false
   for (const ch of sld) {
     if (ch.charCodeAt(0) <= 127) continue
-    const canon = skeleton(ch)
-    if (canon !== ch && ASCII_ONLY.test(canon)) { confusableFold = true; break }
+    const canon = skel(ch)
+    if (!ABLATE.noSkeleton && canon !== ch && ASCII_ONLY.test(canon)) { confusableFold = true; break }
   }
 
   // Nearest brand by weighted edit distance (longer cores only, to avoid
@@ -256,7 +260,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   const officialByDomain = allBrands.find((b) => isOfficial(b, registrable, sld, lastLabel))
   const exactCoreBrand = allBrands.find((b) => b.core === sld)
   const skelCoreBrand = allBrands.find((b) => b.core === sldSkel)
-  const subMatches = findPatterns(sldSkel, substrBrands.map((b) => b.core))
+  const subMatches = ABLATE.noHorspool ? [] : findPatterns(sldSkel, substrBrands.map((b) => b.core))
   // A brand core appearing as a whole hyphen/underscore-delimited token — even a
   // short one like 'sbi' that is too short for safe substring matching. Exact
   // token only ('sbinary' is NOT a match), and only treated as an attack when
@@ -265,7 +269,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   const tokenBrand = allBrands.find((b) => b.core.length >= 3 && b.core !== sld && tokens.includes(b.core))
   const tldSuspicious = SUSPICIOUS_TLDS.has(lastLabel)
   const lure = LURE_WORDS.filter(
-    (w) => sldSkel.includes(w) || subdomains.some((s) => skeleton(s).includes(w)),
+    (w) => sldSkel.includes(w) || subdomains.some((s) => skel(s).includes(w)),
   )
 
   // Finalise the homoglyph verdict (see confusable-character analysis above): a
@@ -275,14 +279,14 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   // Latin IDNs that imitate no brand off the list.
   const brandProximate = !!skelCoreBrand || subMatches.length > 0 || (nearest !== null && bestSim >= 0.85)
   // Homoglyph in the TLD itself (paypal.cоm, Cyrillic 'о') — RT-04.
-  const tldSkel = skeleton(lastLabel)
+  const tldSkel = skel(lastLabel)
   const tldDisguised = !ASCII_ONLY.test(lastLabel) && ASCII_ONLY.test(tldSkel) && tldSkel !== lastLabel
   const homoglyphUsed = mixedScript || (confusableFold && brandProximate) || tldDisguised
   const homoglyphs: Homoglyph[] = []
   if (homoglyphUsed) {
     for (const ch of sld + (tldDisguised ? lastLabel : '')) {
       if (ch.charCodeAt(0) <= 127) continue
-      const canon = skeleton(ch)
+      const canon = skel(ch)
       if (canon !== ch && ASCII_ONLY.test(canon)) homoglyphs.push({ orig: ch, canon, script: scriptOf(ch) })
     }
   }
@@ -292,7 +296,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   // mis-click on "Report as safe" can't whitelist pаypal.com forever (RT-08).
   if (allow?.has(registrable) && !homoglyphUsed) {
     return {
-      input, host, registrable, sld, tld, skeleton: skeleton(host),
+      input, host, registrable, sld, tld, skeleton: skel(host),
       level: 'safe', score: 0, brand: null, similarity: 1,
       distance: 0, trace: [], homoglyphs: [], ops,
       signals: [{ label: 'Marked safe by you', detail: `You reported ${registrable} as legitimate, so Unmaskr won't flag it.`, weight: 0 }],
@@ -312,7 +316,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // it is probably the brand's defensive registration, but unconfirmed.
     const confirmed = isOfficial(officialByDomain, registrable, sld, lastLabel, true)
     return {
-      input, host, registrable, sld, tld, skeleton: skeleton(host),
+      input, host, registrable, sld, tld, skeleton: skel(host),
       level: 'safe', score: 2, brand: officialByDomain, similarity: 1,
       distance: 0, trace: [], homoglyphs: [], ops,
       signals: [confirmed
@@ -332,9 +336,9 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   // A brand's real address used as bait in front of the real one: in the URL's
   // username (paypal.com@evil.xyz, RT-01) or as a sub-domain prefix
   // (paypal.com.evil.xyz / paypal.com-secure.net, RT-02). No legitimate use.
-  const hostSkel = skeleton(host)
-  const userSkel = skeleton(userinfo)
-  const decoy = allBrands.find((b) =>
+  const hostSkel = skel(host)
+  const userSkel = skel(userinfo)
+  const decoy = ABLATE.noDecoy ? undefined : allBrands.find((b) =>
     (userinfo && (userSkel.includes(b.domain) || (b.core.length >= 4 && userSkel.includes(b.core)))) ||
     (!officialByDomain && (hostSkel.startsWith(b.domain + '.') || hostSkel.startsWith(b.domain + '-') ||
       hostSkel.includes('.' + b.domain + '.') || hostSkel.includes('.' + b.domain + '-'))))
@@ -375,7 +379,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
     // The exception is when the label is the brand plus only a 1–2 char tweak
     // (googlee, appple): that is a typosquat, not a product name, so flag it.
     const typoClose = b ? sldSkel.length - b.core.length <= 2 : false
-    const corroborated = lure.length > 0 || tldSuspicious || homoglyphUsed || typoClose
+    const corroborated = ABLATE.noCorroboration || lure.length > 0 || tldSuspicious || homoglyphUsed || typoClose
     // Combosquat (RT-05): a money/government brand as a whole hyphen-separated
     // word (hdfcbank-netbanking.com, paytm-upi.com) is a warning even with no
     // lure — banks, payment apps and government portals don't hyphenate their
@@ -409,7 +413,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   }
 
   // ── Brand only in a sub-domain (the real target sits in the sub-domain) ──
-  const subBrand = allBrands.find((b) => b.core.length >= 4 && subdomains.some((s) => skeleton(s) === b.core || skeleton(s).includes(b.core)))
+  const subBrand = allBrands.find((b) => b.core.length >= 4 && subdomains.some((s) => skel(s) === b.core || skel(s).includes(b.core)))
   if (subBrand && !officialByDomain) {
     impersonated = impersonated ?? subBrand
     add('Brand in a sub-domain', `'${subBrand.core}' (${subBrand.name}) appears as a sub-domain, but the real owner is '${registrable}'.`, 0.3)
@@ -419,8 +423,8 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   if (homoglyphUsed && !impersonated && nearest && bestSim >= 0.7) impersonated = nearest
 
   // ── Secondary signals ──
-  if (tldSuspicious) add('Suspicious top-level domain', `.${lastLabel} is frequently used for throwaway phishing sites.`, 0.12)
-  if (lure.length && impersonated) add('Urgency / lure keywords', `Contains ${lure.map((w) => `'${w}'`).join(', ')} — classic phishing bait.`, 0.15)
+  if (tldSuspicious && !ABLATE.noSecondary) add('Suspicious top-level domain', `.${lastLabel} is frequently used for throwaway phishing sites.`, 0.12)
+  if (lure.length && impersonated && !ABLATE.noSecondary) add('Urgency / lure keywords', `Contains ${lure.map((w) => `'${w}'`).join(', ')} — classic phishing bait.`, 0.15)
 
   // ── Aggregate ──
   // Escalate only for an *impersonation* signal (a matched/embedded brand or a
@@ -449,7 +453,7 @@ export function analyze(input: string, extraBrands: Brand[] = [], allow?: Set<st
   }
 
   return {
-    input, host, registrable, sld, tld, skeleton: skeleton(host),
+    input, host, registrable, sld, tld, skeleton: skel(host),
     level, score, brand: impersonated,
     similarity: simShown, distance, trace,
     signals, homoglyphs, ops,

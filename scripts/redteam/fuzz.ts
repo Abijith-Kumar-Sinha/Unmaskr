@@ -9,10 +9,11 @@
 //   npx tsx scripts/redteam/fuzz.ts [label]     -> data-eval/redteam-<label>.json
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { analyze } from '../../src/algorithms/scoring'
 import { BRANDS } from '../../src/data/brands'
 
-type Case = { family: string; input: string }
+export type Case = { family: string; input: string }
 
 // Non-lure words attackers glue onto a brand (combosquatting). Lure words like
 // 'login'/'kyc' are already covered by the engine, so these test the gap beyond.
@@ -33,7 +34,7 @@ function bitsquats(core: string): string[] {
   return out.slice(0, 6)
 }
 
-function attacks(): Case[] {
+export function attacks(): Case[] {
   const cases: Case[] = []
   const add = (family: string, input: string) => cases.push({ family, input })
   for (const b of BRANDS) {
@@ -67,7 +68,7 @@ function attacks(): Case[] {
 }
 
 // Benign controls: legitimate domains that must NOT be flagged.
-function benign(): Case[] {
+export function benign(): Case[] {
   const out: Case[] = []
   for (const d of ['københavn.dk', 'straße.de', 'łódź.pl', 'ærø.dk', 'göteborg.se', 'münchen.de', 'zürich.ch', 'españa.com', 'café.fr', 'ελλάδα.gr', 'россия.рф', 'भारत.भारत'])
     out.push({ family: 'benign-idn', input: d })
@@ -96,21 +97,24 @@ function run(cases: Case[]) {
   return { rows: [...rows.values()], misses }
 }
 
-const label = process.argv[2] ?? 'latest'
-const atk = run(attacks())
-const ben = run(benign())
-const pct = (x: number, n: number) => `${((100 * x) / n).toFixed(1)}%`.padStart(7)
+// Run only as a script, so scripts/eval/paper.ts can import the cases.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  const label = process.argv[2] ?? 'latest'
+  const atk = run(attacks())
+  const ben = run(benign())
+  const pct = (x: number, n: number) => `${((100 * x) / n).toFixed(1)}%`.padStart(7)
 
-console.log(`\nUnmaskr red-team fuzz  [${label}]\n`)
-console.log('ATTACK FAMILY'.padEnd(22), 'n'.padStart(5), 'BYPASS'.padStart(7), 'warn'.padStart(7), 'block'.padStart(7))
-for (const r of atk.rows) console.log(r.family.padEnd(22), String(r.n).padStart(5), pct(r.safe, r.n), pct(r.suspicious, r.n), pct(r.dangerous, r.n))
-const tot = atk.rows.reduce((a, r) => ({ n: a.n + r.n, safe: a.safe + r.safe }), { n: 0, safe: 0 })
-console.log('ALL ATTACKS'.padEnd(22), String(tot.n).padStart(5), pct(tot.safe, tot.n))
-console.log('\nBENIGN CONTROL'.padEnd(23), 'n'.padStart(5), 'FALSE+'.padStart(7))
-for (const r of ben.rows) console.log(r.family.padEnd(22), String(r.n).padStart(5), pct(r.n - r.safe, r.n))
-for (const [f, m] of Object.entries({ ...atk.misses, ...ben.misses })) console.log(`  ${f}: e.g. ${m.slice(0, 3).map((s) => JSON.stringify(s)).join(', ')}`)
+  console.log(`\nUnmaskr red-team fuzz  [${label}]\n`)
+  console.log('ATTACK FAMILY'.padEnd(22), 'n'.padStart(5), 'BYPASS'.padStart(7), 'warn'.padStart(7), 'block'.padStart(7))
+  for (const r of atk.rows) console.log(r.family.padEnd(22), String(r.n).padStart(5), pct(r.safe, r.n), pct(r.suspicious, r.n), pct(r.dangerous, r.n))
+  const tot = atk.rows.reduce((a, r) => ({ n: a.n + r.n, safe: a.safe + r.safe }), { n: 0, safe: 0 })
+  console.log('ALL ATTACKS'.padEnd(22), String(tot.n).padStart(5), pct(tot.safe, tot.n))
+  console.log('\nBENIGN CONTROL'.padEnd(23), 'n'.padStart(5), 'FALSE+'.padStart(7))
+  for (const r of ben.rows) console.log(r.family.padEnd(22), String(r.n).padStart(5), pct(r.n - r.safe, r.n))
+  for (const [f, m] of Object.entries({ ...atk.misses, ...ben.misses })) console.log(`  ${f}: e.g. ${m.slice(0, 3).map((s) => JSON.stringify(s)).join(', ')}`)
 
-mkdirSync(resolve(import.meta.dirname, '../../data-eval'), { recursive: true })
-const out = resolve(import.meta.dirname, `../../data-eval/redteam-${label}.json`)
-writeFileSync(out, JSON.stringify({ label, ts: new Date().toISOString(), attacks: atk, benign: ben }, null, 2))
-console.log(`\n-> ${out}`)
+  mkdirSync(resolve(import.meta.dirname, '../../data-eval'), { recursive: true })
+  const out = resolve(import.meta.dirname, `../../data-eval/redteam-${label}.json`)
+  writeFileSync(out, JSON.stringify({ label, ts: new Date().toISOString(), attacks: atk, benign: ben }, null, 2))
+  console.log(`\n-> ${out}`)
+}

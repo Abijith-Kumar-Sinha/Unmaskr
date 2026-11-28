@@ -1,4 +1,5 @@
 import { CONFUSABLES_FULL } from '../data/confusablesMap'
+import { ABLATE } from './ablation'
 
 // Unicode skeleton normalization (in the spirit of UTS #39).
 //
@@ -74,6 +75,7 @@ export const NORMAL_COST = 1
 /** Cost of substituting character `a` with `b`. */
 export function subCost(a: string, b: string): number {
   if (a === b) return 0
+  if (ABLATE.uniformCosts) return NORMAL_COST
   if (visualSet.has(a + b)) return VISUAL_COST
   if (keyboardSet.has(a + b)) return KEYBOARD_COST
   return NORMAL_COST
