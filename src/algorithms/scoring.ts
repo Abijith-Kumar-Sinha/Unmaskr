@@ -7,6 +7,7 @@ import { registrableParts } from '../data/publicSuffix'
 import {
   BRANDS,
   VERIFIED_SUFFIXES,
+  DOT_BRAND_TLDS,
   SUSPICIOUS_TLDS,
   COMMON_TLDS,
   LURE_WORDS,
@@ -168,9 +169,9 @@ function ownsHere(b: Brand, sld: string, lastLabel: string, strict: boolean): bo
 function isOfficial(b: Brand, registrable: string, sld: string, lastLabel: string, strict = false): boolean {
   return registrable === b.domain || !!b.altDomains?.includes(registrable) || ownsHere(b, sld, lastLabel, strict) ||
     (sld === b.core && VERIFIED_SUFFIXES.has(registrable.slice(sld.length + 1))) || // sbi.bank.in
-    // A dot-brand TLD (blog.google, aws.amazon, x.sbi): a TLD spelled like the brand is
-    // either the brand's own registry or does not exist, so it cannot be a lookalike.
-    (lastLabel === b.core && registrable.endsWith('.' + lastLabel))
+    // A closed dot-brand TLD (blog.google, aws.amazon): curated brands only, from an
+    // explicit list, never a learned site (its name could be an open TLD like 'shop').
+    (b.category !== 'Your site' && DOT_BRAND_TLDS[lastLabel] === b.core)
 }
 
 /** The curated brand this host officially belongs to, or null. Strict: used by

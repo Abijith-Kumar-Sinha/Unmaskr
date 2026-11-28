@@ -85,8 +85,8 @@ export const BRANDS: Brand[] = [
   { name: 'Union Bank of India', core: 'unionbankofindia', domain: 'unionbankofindia.co.in', category: 'Bank' },
   { name: 'Bajaj Finserv', core: 'bajajfinserv', domain: 'bajajfinserv.in', category: 'Finance',
     altDomains: ['bajajfinservmarkets.in', 'bajajfinservhealth.in'] },
-  // Bharti Airtel group runs national sites under its own name (airtel.ng, airtel.lk…).
-  { name: 'Airtel', core: 'airtel', domain: 'airtel.in', category: 'Telecom', ownsName: true, altDomains: ['airtel.com', 'airtelbroadband.in'] },
+  // Airtel group national sites listed explicitly (a telecom must not own every TLD).
+  { name: 'Airtel', core: 'airtel', domain: 'airtel.in', category: 'Telecom', altDomains: ['airtel.com', 'airtelbroadband.in', 'airtel.africa', 'airtel.ng', 'airtel.lk'] },
   { name: 'LinkedIn', core: 'linkedin', domain: 'linkedin.com', category: 'Social', ownsName: true, altDomains: ['licdn.com', 'lnkd.in'] },
   { name: 'Coinbase', core: 'coinbase', domain: 'coinbase.com', category: 'Crypto', ownsName: true },
   { name: 'MetaMask', core: 'metamask', domain: 'metamask.io', category: 'Crypto' },
@@ -113,7 +113,7 @@ export const BRANDS: Brand[] = [
   { name: 'Chase', core: 'chase', domain: 'chase.com', category: 'Bank', generic: true },
   { name: 'Bank of America', core: 'bankofamerica', domain: 'bankofamerica.com', category: 'Bank', altDomains: ['bofa.com'] },
   { name: 'American Express', core: 'americanexpress', domain: 'americanexpress.com', category: 'Bank', altDomains: ['aexp.com'] },
-  { name: 'HSBC', core: 'hsbc', domain: 'hsbc.com', category: 'Bank', ownsName: true },
+  { name: 'HSBC', core: 'hsbc', domain: 'hsbc.com', category: 'Bank', altDomains: ['hsbc.co.in', 'hsbc.co.uk', 'hsbc.com.hk'] },
   { name: 'Trust Wallet', core: 'trustwallet', domain: 'trustwallet.com', category: 'Crypto' },
   { name: 'Exodus', core: 'exodus', domain: 'exodus.com', category: 'Crypto', generic: true },
   // India
@@ -139,6 +139,16 @@ export const BRANDS: Brand[] = [
 // .gov.in / .nic.in / .mil.in are reserved for the Government of India (NIC);
 // .sbi and .statebank are SBI's own brand TLDs.
 export const VERIFIED_SUFFIXES = new Set(['bank.in', 'fin.in', 'gov.in', 'nic.in', 'mil.in', 'sbi', 'statebank'])
+
+// Closed ".brand" TLDs: only the brand itself can register under these, so
+// blog.google or aws.amazon is the brand's own. Explicit list: a learned site whose
+// name happens to equal an open TLD (shop, online…) must never whitelist that TLD.
+export const DOT_BRAND_TLDS: Record<string, string> = {
+  google: 'google', youtube: 'youtube', amazon: 'amazon', aws: 'amazon', apple: 'apple',
+  microsoft: 'microsoft', linkedin: 'linkedin', netflix: 'netflix', hsbc: 'hsbc', chase: 'chase',
+  dhl: 'dhl', fedex: 'fedex', yahoo: 'yahoo', adobe: 'adobe', dropbox: 'dropbox',
+  spotify: 'spotify', booking: 'booking', jio: 'jio', sbi: 'sbi', statebank: 'sbi',
+}
 
 // TLDs commonly abused for throwaway phishing domains.
 export const SUSPICIOUS_TLDS = new Set([

@@ -84,6 +84,11 @@ if (analyze(evilCb).level !== 'dangerous') throw new Error('RT-21: lookalike red
 for (const d of ['sbi.bank.in', 'hdfcbank.bank.in', 'icicibank.de', 'amazon.jobs']) expect(d, 'safe', 'verified registry / owned domain')
 for (const d of ['pay.pal.com', 'ko.tak.com', 'razo.rpay.com']) expect(d, 'flag', 'brand split by a dot')
 expect('pаypal.bank.in', 'dangerous', 'verified registry must not clear a homoglyph')
+// Security review of v0.4: a learned site named like an open TLD must not whitelist it,
+// and a bank must not own its name on every TLD.
+expect('paypal-login.shop', 'flag', 'learned site "shop" must not whitelist .shop', [{ name: 'shop', core: 'shop', domain: 'shop.com', category: 'Your site' }])
+expect('blog.google', 'safe', 'closed dot-brand TLD')
+expect('hsbc.cc', 'flag', 'bank name on an obscure TLD')
 // The ML path must not miss the userinfo trick either (paper eval found 0 %).
 if (predictML('https://hdfcbank.com@secure-check.xyz/login').level !== 'dangerous') throw new Error('ML: userinfo trick not blocked')
 if (predictML('paypal.com').level !== 'safe') throw new Error('ML: official domain flagged')

@@ -409,9 +409,6 @@ const WEBMAIL = /^(mail\.google\.com|outlook\.(live|office|office365)\.com|mail\
 function scanLinks() {
   ensureLinkStyle()
   const here = pageHost()
-  // On a brand's own site, links "imitating" that brand are its own other sites
-  // (icicibank.com links to icicibank.de, icicibank.onelink.me…): not flagged.
-  const pageBrand = officialBrandOf(here)
   const badgeRisky = WEBMAIL.test(here)
   const anchors = document.querySelectorAll<HTMLAnchorElement>('a[href]')
   let flagged = 0
@@ -452,7 +449,6 @@ function scanLinks() {
     // The userinfo trick needs the full href (https://bank.com@evil.xyz).
     const v = u.username ? analyze(u.href, TRUSTED, ALLOW) : check(host)
     if (v.level === 'safe') return
-    if (pageBrand && v.brand === pageBrand && !v.homoglyphs.length && !u.username) return
     const danger = v.level === 'dangerous'
     if (!danger && !badgeRisky) return
     flagLink(a, danger, danger ? '⚠ fake' : '⚠ risky',
